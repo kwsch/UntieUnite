@@ -1,6 +1,8 @@
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using FluentAssertions;
+using Newtonsoft.Json;
 using UntieUnite.Core;
 using Xunit;
 
@@ -22,8 +24,41 @@ namespace UntieUnite.Tests
             result.Should().BeTrue();
             File.WriteAllBytes("decrypt.bin", decrypted);
 
+            Directory.CreateDirectory("rawProto");
             var dec = FileUtil.DecompressZlib(decrypted);
-            File.WriteAllBytes("decompressed.bin", dec);
+            File.WriteAllBytes(Path.Combine("rawProto", "PbResMap.pb"), dec);
+        }
+
+        [Theory]
+        [InlineData("")]
+        public void Dump(string outRoot)
+        {
+            DumpProto(outRoot);
+        }
+
+        private static void DumpProto(string outRoot, bool tableLayout = true)
+        {
+            var pdf = Path.Combine(outRoot, "protodump");
+            Directory.CreateDirectory(pdf);
+
+            var types = ProtoTableDumper.GetProtoTypes();
+            foreach (var t in types)
+            {
+                var name = t.Name;
+                var filename = $"{name}.pb";
+                var path = Path.Combine(outRoot, "rawProto", filename);
+                if (!File.Exists(path))
+                {
+                    Debug.WriteLine($"Couldn't find proto data file: {name}");
+                    continue;
+                }
+
+                var data = File.ReadAllBytes(path);
+                var proto = ProtoTableDumper.GetProtoData(t, data);
+                var text = JsonConvert.SerializeObject(proto, Formatting.Indented);
+                var outpath = Path.Combine(pdf, $"{name}.json");
+                File.WriteAllText(outpath, text);
+            }
         }
     }
 }
