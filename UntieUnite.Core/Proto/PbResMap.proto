@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+package PbSerial;
+
+option csharp_namespace = "PbSerial";
+
+message PbResNode {
+    int32 Id = 1;
+    uint32 AssetNameHash = 2;
+    int32 Lod = 3;
+    int32 AssetExtId = 4;
+    int32 AssetFunType = 5;
+    int32 AssetLocType = 6;
+    int32 ResPathId = 7;
+    int32 ResPathAbId = 8;
+    int32 ResTypeId = 9;
+    bool KeepInMem = 10;
+    bool Extract = 11;
+    int32 ExtractionPathId = 12;
+    int32 IsInOtherDLC = 13;
+    repeated int32 DependIds = 16;
+}
+
+message PbAssetBundle {
+    string name = 1;
+    int32 AbId = 2;
+    repeated string content = 3;
+    repeated int32 contentIndices = 4;
+}
+
+message PbDlcNode {
+    string bundleName = 1;
+    string md5 = 2;
+    uint32 size = 3;
+    int32 lod = 4;
+}
+
+message PbResMap {
+    string version = 1;
+    string bundle_version_name = 3;
+    int32 bundle_version_code = 4;
+    int32 gcloud_res_version = 5;
+    uint64 battle_match_version0 = 6;
+    uint64 battle_match_version1 = 7;
+    int32 battle_complete_version = 8;
+    string battle_match_signature_code = 9;
+    string battle_match_signature_res = 10;
+    int32 battle_match_signature_table = 11;
+    map<uint32, string> HashToAssetNames = 12;
+    repeated PbResNode resNodeList = 13;
+    repeated PbAssetBundle assetbundles = 14;
+    repeated PbDlcNode DlcNodes = 15;
+    map<int32, string> ExtStrPool = 17;
+    map<int32, string> ExtracPathStrPool = 18;
+    map<int32, string> TypeStrPool = 19;
+    map<int32, string> ResPathStrPool = 20;
+    map<uint32, string> HashToMd5s = 21;
+}
