@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package pb_Protocol;
+
+message pbStage {
+    int32 MaxProcess = 29573;
+    int32 AwardResID = 23766;
+    int32 AwardResNum = 21834;
+}
+
+message pbCondMulStageTask {
+    int32 TaskID = 22390;
+    int32 MaxDoneCount = 20757;
+    string TaskName = 29610;
+    string TaskDesc = 24488;
+    int32 FinishConditionID = 22058;
+    repeated pbStage Stage = 22241;
+}
+
+enum PB_MACRO_MAX_CONDMULSTAGETASK_TASKNAME_STR_LEN {
+    PB_MAX_CONDMULSTAGETASK_TASKNAME_STR_LEN_0 = 0;
+    PB_MAX_CONDMULSTAGETASK_TASKNAME_STR_LEN = 32;
+}
+
+enum PB_MACRO_MAX_CONDMULSTAGETASK_TASKDESC_STR_LEN {
+    PB_MAX_CONDMULSTAGETASK_TASKDESC_STR_LEN_0 = 0;
+    PB_MAX_CONDMULSTAGETASK_TASKDESC_STR_LEN = 32;
+}
+
+enum PB_MACRO_MAX_CONDMULSTAGETASK_STAGE_CFG_NUM {
+    PB_MAX_CONDMULSTAGETASK_STAGE_CFG_NUM_0 = 0;
+    PB_MAX_CONDMULSTAGETASK_STAGE_CFG_NUM = 10;
+}

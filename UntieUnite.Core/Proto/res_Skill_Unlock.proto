@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package pb_Protocol;
+
+message pbSkill_Unlock {
+    int32 PokemonId = 29829;
+    int32 Level = 29753;
+    int32 AwardId = 28059;
+    int32 AwardType = 23338;
+    int32 Experience = 24738;
+    string LevelIcon = 20744;
+    string AwardShow = 21855;
+    string Desctription = 21116;
+    int32 SlotIndex = 21695;
+}
+
+enum PB_MACRO_MAX_SKILL_UNLOCK_LEVELICON_STR_LEN {
+    PB_MAX_SKILL_UNLOCK_LEVELICON_STR_LEN_0 = 0;
+    PB_MAX_SKILL_UNLOCK_LEVELICON_STR_LEN = 64;
+}
+
+enum PB_MACRO_MAX_SKILL_UNLOCK_AWARDSHOW_STR_LEN {
+    PB_MAX_SKILL_UNLOCK_AWARDSHOW_STR_LEN_0 = 0;
+    PB_MAX_SKILL_UNLOCK_AWARDSHOW_STR_LEN = 64;
+}
+
+enum PB_MACRO_MAX_SKILL_UNLOCK_DESCTRIPTION_STR_LEN {
+    PB_MAX_SKILL_UNLOCK_DESCTRIPTION_STR_LEN_0 = 0;
+    PB_MAX_SKILL_UNLOCK_DESCTRIPTION_STR_LEN = 64;
+}

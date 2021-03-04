@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package PbSerial;
+
+option csharp_namespace = "PbSerial";
+
+message TypeAndMember {
+    string Type = 1;
+    string Member = 2;
+}

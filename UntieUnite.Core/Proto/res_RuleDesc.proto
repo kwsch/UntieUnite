@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package pb_Protocol;
+
+message pbRuleDesc {
+    int32 ID = 29187;
+    string Title = 22551;
+    string Desc = 28431;
+}
+
+enum PB_MACRO_MAX_RULEDESC_TITLE_STR_LEN {
+    PB_MAX_RULEDESC_TITLE_STR_LEN_0 = 0;
+    PB_MAX_RULEDESC_TITLE_STR_LEN = 32;
+}
+
+enum PB_MACRO_MAX_RULEDESC_DESC_STR_LEN {
+    PB_MAX_RULEDESC_DESC_STR_LEN_0 = 0;
+    PB_MAX_RULEDESC_DESC_STR_LEN = 256;
+}

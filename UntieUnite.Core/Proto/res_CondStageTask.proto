@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package pb_Protocol;
+
+message pbCondStageTaskAward {
+    int32 ResID = 21188;
+    int32 ResNum = 26756;
+}
+
+message pbCondStageTask {
+    int32 TaskID = 22390;
+    int32 MaxDoneCount = 20757;
+    string TaskName = 29610;
+    string TaskDesc = 24488;
+    int32 FinishConditionID = 22058;
+    int32 TargetProcess = 29967;
+    repeated pbCondStageTaskAward CondStageTaskAward = 26298;
+}
+
+enum PB_MACRO_MAX_CONDSTAGETASK_TASKNAME_STR_LEN {
+    PB_MAX_CONDSTAGETASK_TASKNAME_STR_LEN_0 = 0;
+    PB_MAX_CONDSTAGETASK_TASKNAME_STR_LEN = 32;
+}
+
+enum PB_MACRO_MAX_CONDSTAGETASK_TASKDESC_STR_LEN {
+    PB_MAX_CONDSTAGETASK_TASKDESC_STR_LEN_0 = 0;
+    PB_MAX_CONDSTAGETASK_TASKDESC_STR_LEN = 32;
+}
+
+enum PB_MACRO_MAX_CONDSTAGETASK_CONDSTAGETASKAWARD_CFG_NUM {
+    PB_MAX_CONDSTAGETASK_CONDSTAGETASKAWARD_CFG_NUM_0 = 0;
+    PB_MAX_CONDSTAGETASK_CONDSTAGETASKAWARD_CFG_NUM = 3;
+}

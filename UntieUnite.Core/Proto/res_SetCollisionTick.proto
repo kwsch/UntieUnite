@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+package pb_Protocol;
+
+message pbSetCollisionTick {
+    int32 Id = 29155;
+    int32 type = 28756;
+}

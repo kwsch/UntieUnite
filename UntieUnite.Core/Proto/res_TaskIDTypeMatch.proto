@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package pb_Protocol;
+
+message pbTaskIDTypeMatch {
+    int32 TaskType = 26569;
+    int32 TaskAttr = 27262;
+    int32 TypeIDMin = 23100;
+    int32 TypeIDMax = 23094;
+}

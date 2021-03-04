@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package pb_Protocol;
+
+message pbActConsumeRes {
+    int32 ID = 29187;
+    int32 Num = 26707;
+}
+
+message pbActExchangeTask {
+    int32 TaskID = 22390;
+    int32 SeqID = 22333;
+    int32 ExchangeMaxCount = 24936;
+    string TaskName = 29610;
+    string TaskDesc = 24488;
+    int32 ExchangeTargetID = 25119;
+    int32 ExchangeTargetNum = 27391;
+    repeated pbActConsumeRes ActConsumeRes = 21423;
+    int32 ResetType = 22372;
+}
+
+enum PB_MACRO_MAX_ACTEXCHANGETASK_TASKNAME_STR_LEN {
+    PB_MAX_ACTEXCHANGETASK_TASKNAME_STR_LEN_0 = 0;
+    PB_MAX_ACTEXCHANGETASK_TASKNAME_STR_LEN = 32;
+}
+
+enum PB_MACRO_MAX_ACTEXCHANGETASK_TASKDESC_STR_LEN {
+    PB_MAX_ACTEXCHANGETASK_TASKDESC_STR_LEN_0 = 0;
+    PB_MAX_ACTEXCHANGETASK_TASKDESC_STR_LEN = 32;
+}
+
+enum PB_MACRO_MAX_ACTEXCHANGETASK_ACTCONSUMERES_CFG_NUM {
+    PB_MAX_ACTEXCHANGETASK_ACTCONSUMERES_CFG_NUM_0 = 0;
+    PB_MAX_ACTEXCHANGETASK_ACTCONSUMERES_CFG_NUM = 3;
+}

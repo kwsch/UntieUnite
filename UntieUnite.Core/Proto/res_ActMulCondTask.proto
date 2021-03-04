@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package pb_Protocol;
+
+message pbActMulCondTaskAward {
+    int32 ResID = 21188;
+    int32 ResNum = 26756;
+}
+
+message pbActMulCondTask {
+    int32 TaskID = 22390;
+    int32 SeqID = 22333;
+    int32 MaxDoneCount = 20757;
+    int32 MulCondType = 26125;
+    string TaskName = 29610;
+    string TaskDesc = 24488;
+    int32 FinishConditionID = 22058;
+    int32 TargetProcess = 29967;
+    repeated pbActMulCondTaskAward ActMulCondTaskAward = 27459;
+}
+
+enum PB_MACRO_MAX_ACTMULCONDTASK_TASKNAME_STR_LEN {
+    PB_MAX_ACTMULCONDTASK_TASKNAME_STR_LEN_0 = 0;
+    PB_MAX_ACTMULCONDTASK_TASKNAME_STR_LEN = 32;
+}
+
+enum PB_MACRO_MAX_ACTMULCONDTASK_TASKDESC_STR_LEN {
+    PB_MAX_ACTMULCONDTASK_TASKDESC_STR_LEN_0 = 0;
+    PB_MAX_ACTMULCONDTASK_TASKDESC_STR_LEN = 32;
+}
+
+enum PB_MACRO_MAX_ACTMULCONDTASK_ACTMULCONDTASKAWARD_CFG_NUM {
+    PB_MAX_ACTMULCONDTASK_ACTMULCONDTASKAWARD_CFG_NUM_0 = 0;
+    PB_MAX_ACTMULCONDTASK_ACTMULCONDTASKAWARD_CFG_NUM = 3;
+}
