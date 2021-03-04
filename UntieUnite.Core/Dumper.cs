@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using Newtonsoft.Json;
@@ -97,6 +98,34 @@ namespace UntieUnite.Core
                     }
                 }
             }
+        }
+
+        public static void DumpAllProtoData(string outDir, string inDir)
+        {
+            Directory.CreateDirectory(outDir);
+
+            var types = ProtoTableDumper.GetProtoTypes();
+            foreach (var t in types)
+                DumpProto(inDir, outDir, t);
+        }
+
+        private static void DumpProto(string inDir, string outDir, Type pbType)
+        {
+            var name = pbType.Name;
+            var filename = $"{name}.pb";
+            var path = Path.Combine(inDir, filename);
+            if (!File.Exists(path))
+            {
+                Console.WriteLine($"Couldn't find proto data file: {name}");
+                return;
+            }
+
+            var data = File.ReadAllBytes(path);
+            var proto = ProtoTableDumper.GetProtoData(pbType, data);
+
+            var json = JsonConvert.SerializeObject(proto, Formatting.Indented);
+            var jsonPath = Path.Combine(outDir, $"{name}.json");
+            File.WriteAllText(jsonPath, json);
         }
     }
 }
