@@ -2,6 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Security.Cryptography;
+using Ionic.Zlib;
 
 namespace UntieUnite.Core
 {
@@ -90,6 +91,23 @@ namespace UntieUnite.Core
             }
 
             return key;
+        }
+
+        public static byte[] Decrypt(uint key, byte[] data)
+        {
+            if (data.Length == 0)
+                return Array.Empty<byte>();
+
+            var decoder = new ResDecoder(key);
+            if (!decoder.TryDecryptBytes(data, out var decrypted))
+                throw new InvalidDataException();
+            return decrypted;
+        }
+
+        public static byte[] DecryptAndDecompress(uint key, byte[] data)
+        {
+            var decrypted = Decrypt(key, data);
+            return DeflateStream.UncompressBuffer(decrypted);
         }
     }
 }

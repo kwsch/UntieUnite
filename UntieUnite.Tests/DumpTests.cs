@@ -1,6 +1,5 @@
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using FluentAssertions;
 using Newtonsoft.Json;
 using UntieUnite.Core;
@@ -17,7 +16,7 @@ namespace UntieUnite.Tests
             var rmpb = Directory.GetFiles(dir, "ResMapPb.bytes", SearchOption.AllDirectories);
             rmpb.Length.Should().Be(1);
 
-            var fn = rmpb.First();
+            var fn = rmpb[0];
             var decoder = new ResDecoder(0xC093D547);
             var encrypted = File.ReadAllBytes(fn);
             var result = decoder.TryDecryptBytes(encrypted, out var decrypted);
@@ -36,7 +35,7 @@ namespace UntieUnite.Tests
             DumpProto(outRoot);
         }
 
-        private static void DumpProto(string outRoot, bool tableLayout = true)
+        private static void DumpProto(string outRoot)
         {
             var pdf = Path.Combine(outRoot, "protodump");
             Directory.CreateDirectory(pdf);
