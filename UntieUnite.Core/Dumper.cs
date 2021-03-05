@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using Newtonsoft.Json;
@@ -100,7 +99,7 @@ namespace UntieUnite.Core
             }
         }
 
-        public static void DumpAllProtoData(string outDir, string inDir)
+        public static void DumpAllProtoData(string inDir, string outDir)
         {
             Directory.CreateDirectory(outDir);
 
@@ -126,6 +125,18 @@ namespace UntieUnite.Core
             var json = JsonConvert.SerializeObject(proto, Formatting.Indented);
             var jsonPath = Path.Combine(outDir, $"{name}.json");
             File.WriteAllText(jsonPath, json);
+        }
+
+        public static void DumpGlobalMetadataStrings(string inDirApk, string outDir)
+        {
+            // root\assets\bin\Data\Managed\Metadata\global.metadata.dat
+            var path = Directory.GetFiles(inDirApk, "global-metadata.dat", SearchOption.AllDirectories);
+            var data = File.ReadAllBytes(path[0]);
+            var gmeta = new GlobalMetadata(data);
+            var strings = gmeta.GetEntries();
+
+            var outPath = Path.Combine(outDir, "global-metadata.txt");
+            File.WriteAllLines(outPath, strings);
         }
     }
 }

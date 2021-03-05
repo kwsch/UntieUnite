@@ -40,7 +40,18 @@ namespace UntieUnite.Tests
         {
             var outDir = Path.Combine(outRoot, "protodump");
             var inDir = Path.Combine(outRoot, "rawProto");
-            Dumper.DumpAllProtoData(outDir, inDir);
+            Dumper.DumpAllProtoData(inDir, outDir);
+        }
+
+        [Theory]
+        [InlineData(outRootDir)]
+        public void DumpGmeta(string gmetaPath)
+        {
+            var path = Path.Combine(gmetaPath, "global-metadata.dat");
+            var data = File.ReadAllBytes(path);
+            var gm = new GlobalMetadata(data);
+            var lines = gm.GetEntries();
+            File.WriteAllLines(Path.Combine(gmetaPath, "global-metadata_strings.txt"), lines);
         }
     }
 }
