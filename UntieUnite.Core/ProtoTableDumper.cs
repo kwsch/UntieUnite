@@ -8,6 +8,9 @@ using Newtonsoft.Json.Linq;
 
 namespace UntieUnite.Core
 {
+    /// <summary>
+    /// Borrowed (with permission) from our ReMasters project (used with Pokémon Masters EX).
+    /// </summary>
     public static class ProtoTableDumper
     {
         /// <summary>

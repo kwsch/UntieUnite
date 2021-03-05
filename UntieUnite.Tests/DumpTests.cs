@@ -5,6 +5,9 @@ using Xunit;
 
 namespace UntieUnite.Tests
 {
+    /// <summary>
+    /// Test some logic. Keep any reusable logic in the <see cref="Core"/> project please!
+    /// </summary>
     public class DumpTests
     {
         // test folder, lazy bad!
@@ -18,7 +21,7 @@ namespace UntieUnite.Tests
             rmpb.Length.Should().Be(1);
 
             var fn = rmpb[0];
-            var decoder = new ResDecoder(0xC093D547);
+            var decoder = new ResDecoder(EncryptKey._0xC093D547);
             var encrypted = File.ReadAllBytes(fn);
             var result = decoder.TryDecryptBytes(encrypted, out var decrypted);
             result.Should().BeTrue();
@@ -51,7 +54,8 @@ namespace UntieUnite.Tests
             var data = File.ReadAllBytes(path);
             var gm = new GlobalMetadata(data);
             var lines = gm.GetEntries();
-            File.WriteAllLines(Path.Combine(gmetaPath, "global-metadata_strings.txt"), lines);
+            var outPath = Path.Combine(gmetaPath, "global-metadata_strings.txt");
+            File.WriteAllLines(outPath, lines);
         }
     }
 }

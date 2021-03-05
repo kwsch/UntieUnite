@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace UntieUnite.Core
+﻿namespace UntieUnite.Core
 {
+    /// <summary>
+    /// Decrypts Unity Bundles (*.bundle) files by cleaning up the metadata at the top.
+    /// </summary>
     public static class AssetCrypto
     {
-        private static readonly byte[] MetaDataKey = {0x12, 0x16, 0x60, 0xCA, 0x64, 0x0C, 0xFD, 0xCE, 0xE1, 0x6D, 0x74, 0x3C, 0x0D, 0x1A, 0x99, 0x6A };
+        private static readonly byte[] MetaDataKey = {0x12, 0x16, 0x60, 0xCA, 0x64, 0x0C, 0xFD, 0xCE, 0xE1, 0x6D, 0x74, 0x3C, 0x0D, 0x1A, 0x99, 0x6A};
 
         private static readonly byte[] BlockInfoKey =
         {

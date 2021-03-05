@@ -3,6 +3,10 @@ using System.Text;
 
 namespace UntieUnite.Core
 {
+    /// <summary>
+    /// global-metadata.dat
+    /// </summary>
+    /// <remarks>Can get some juicy strings from this file!</remarks>
     public class GlobalMetadata
     {
         public readonly byte[] Data;

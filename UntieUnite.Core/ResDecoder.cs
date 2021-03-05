@@ -6,6 +6,9 @@ using Ionic.Zlib;
 
 namespace UntieUnite.Core
 {
+    /// <summary>
+    /// Decodes the ResMap protobuf data binary into something that can be loaded into a proto class.
+    /// </summary>
     public class ResDecoder
     {
         public static readonly byte[] RawKeys = { 0xB2, 0x7F, 0x19, 0x12, 0x8D, 0x5F, 0xCB, 0x75, 0xB0, 0xEA, 0x2A, 0x60, 0xCC, 0x03, 0xA2, 0x55 };
@@ -80,6 +83,8 @@ namespace UntieUnite.Core
 
             return dec[..^padding];
         }
+
+        // Helpers
 
         public static byte[] GetMixedKey(uint mix)
         {

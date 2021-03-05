@@ -1,10 +1,12 @@
-using System.Linq;
 using FluentAssertions;
 using UntieUnite.Core;
 using Xunit;
 
 namespace UntieUnite.Tests
 {
+    /// <summary>
+    /// Sound File Name Hashing?
+    /// </summary>
     public class HashTests
     {
         [Theory]
