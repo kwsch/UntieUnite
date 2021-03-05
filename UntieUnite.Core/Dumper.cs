@@ -27,8 +27,7 @@ namespace UntieUnite.Core
             var resMapData = GetResMap(inDir);
             File.WriteAllBytes(Path.Combine(outDir, "ResMapPb.pb"), resMapData);
 
-            if (ProtoTableDumper.GetProtoData(typeof(PbResMap), resMapData) is not PbResMap resmap)
-                throw new NullReferenceException($"Failed to decode the {nameof(PbResMap)} object");
+            var resmap = PbResMap.Parser.ParseFrom(resMapData);
 
             if (jsonResMap)
                 ExportResMapJson(outDir, resmap);
