@@ -119,11 +119,15 @@ namespace UntieUnite.Core
 
             foreach (var bundleInfo in resmap.Assetbundles)
             {
-                var bundle = File.ReadAllBytes(Path.Combine(inDir, bundleInfo.Name));
+                var fileName = bundleInfo.Name;
+
+                var path = Path.Combine(inDir, fileName);
+                var bundle = File.ReadAllBytes(path);
 
                 DecryptAssetBundle(bundle);
 
-                File.WriteAllBytes(Path.Combine(dirDumpAssetBundle, bundleInfo.Name), bundle);
+                var dest = Path.Combine(dirDumpAssetBundle, fileName);
+                File.WriteAllBytes(dest, bundle);
             }
         }
 
@@ -215,7 +219,8 @@ namespace UntieUnite.Core
             BigEndian.GetBytes(flags & ~0x200u).CopyTo(bundle, offset + 0x10);
 
             // Decrypt the bundle block.
-            AssetCrypto.DecryptAssetBundleCompressedBlockInfo(bundle, offset + 0x14, BigEndian.ToInt32(bundle, offset + 0x8));
+            var size = BigEndian.ToInt32(bundle, offset + 0x8);
+            AssetCrypto.DecryptAssetBundleCompressedBlockInfo(bundle, offset + 0x14, size);
         }
     }
 }
