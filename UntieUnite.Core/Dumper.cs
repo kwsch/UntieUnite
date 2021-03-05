@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.IO.Compression;
+using System.Text;
 using Newtonsoft.Json;
 using PbSerial;
 using static UntieUnite.Core.ResDecoder;
@@ -52,10 +53,12 @@ namespace UntieUnite.Core
             var dirDumpLangMap = Path.Combine(outDir, "LanguageMap");
             var dirDumpDataBin = Path.Combine(outDir, "Databins");
             var dirDumpLua = Path.Combine(outDir, "Lua");
+            var dirDumpAssetBundle = Path.Combine(outDir, "AssetBundles");
 
             Directory.CreateDirectory(dirDumpLangMap);
             Directory.CreateDirectory(dirDumpDataBin);
             Directory.CreateDirectory(dirDumpLua);
+            Directory.CreateDirectory(dirDumpAssetBundle);
 
             var dataBinPath = Path.Combine(inDir, "Databins.zip");
             using var databinZip = ZipFile.OpenRead(dataBinPath);
@@ -97,6 +100,15 @@ namespace UntieUnite.Core
                     }
                 }
             }
+
+            foreach (var bundleInfo in resmap.Assetbundles)
+            {
+                var bundle = File.ReadAllBytes(Path.Combine(inDir, bundleInfo.Name));
+
+                DecryptAssetBundle(bundle);
+
+                File.WriteAllBytes(Path.Combine(dirDumpAssetBundle, bundleInfo.Name), bundle);
+            }
         }
 
         public static void DumpAllProtoData(string inDir, string outDir)
@@ -137,6 +149,38 @@ namespace UntieUnite.Core
 
             var outPath = Path.Combine(outDir, "global-metadata.txt");
             File.WriteAllLines(outPath, strings);
+        }
+
+        private static void DecryptAssetBundle(byte[] bundle)
+        {
+            var signatureLen = Array.IndexOf(bundle, (byte) 0, 0);
+            if (Encoding.UTF8.GetString(bundle, 0, signatureLen) != "UnityFS")
+                return;
+
+            var version = BigEndian.ToUInt32(bundle, signatureLen + 1);
+            if (version > 6)
+                return;
+
+            var unityVersionEnd = Array.IndexOf(bundle, (byte) 0, signatureLen + 1 + 4);
+            var unityRevisionEnd = Array.IndexOf(bundle, (byte)0, unityVersionEnd + 1);
+
+            var offset = unityRevisionEnd + 1;
+
+            // Check that the bundle is actually encrypted.
+            var flags = BigEndian.ToUInt32(bundle, offset + 0x10);
+            if ((flags & 0x200) == 0)
+            {
+                return;
+            }
+
+            // Decrypt the bundle size.
+            AssetCrypto.DecryptAssetBundleSize(bundle, offset);
+
+            // Clear the compressed bit.
+            BigEndian.GetBytes(flags & ~0x200u).CopyTo(bundle, offset + 0x10);
+
+            // Decrypt the bundle block.
+            AssetCrypto.DecryptAssetBundleCompressedBlockInfo(bundle, offset + 0x14, BigEndian.ToInt32(bundle, offset + 0x8));
         }
     }
 }
