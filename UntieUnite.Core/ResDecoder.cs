@@ -11,14 +11,14 @@ namespace UntieUnite.Core
     /// </summary>
     public class ResDecoder
     {
-        public static readonly byte[] RawKeys = { 0xB2, 0x7F, 0x19, 0x12, 0x8D, 0x5F, 0xCB, 0x75, 0xB0, 0xEA, 0x2A, 0x60, 0xCC, 0x03, 0xA2, 0x55 };
+        public static readonly byte[] MasterKey = { 0xB2, 0x7F, 0x19, 0x12, 0x8D, 0x5F, 0xCB, 0x75, 0xB0, 0xEA, 0x2A, 0x60, 0xCC, 0x03, 0xA2, 0x55 };
         public static readonly byte[] MagicAndPadding = { 0x9D, 0x4C, 0x2D, 0x00 };
 
         private readonly AesCryptoServiceProvider _aesCrypto;
 
-        public ResDecoder(uint mix)
+        public ResDecoder(uint salt)
         {
-            _aesCrypto = new AesCryptoServiceProvider { Key = GetMixedKey(mix), IV = new byte[16] };
+            _aesCrypto = new AesCryptoServiceProvider { Key = GenerateDerivedKey(salt), IV = new byte[16] };
         }
 
         public bool TryDecryptBytes(byte[] archive, [NotNullWhen(true)] out byte[]? decrypted)
@@ -77,7 +77,7 @@ namespace UntieUnite.Core
             // Sanity check the padding at the end.
             for (var i = 0; i < padding; ++i)
             {
-                if (dec[dec.Length - 1 - i] != 0)
+                if (dec[^(1+i)] != 0)
                     throw new InvalidOperationException();
             }
 
@@ -87,43 +87,44 @@ namespace UntieUnite.Core
         // Helpers
 
         /// <summary>
-        /// Mixes the provided <see cref="mix"/> with the <see cref="RawKeys"/> value.
+        /// Key Derivation Function that simply XOR's the 32bit <see cref="salt"/> into the <see cref="MasterKey"/>.
         /// </summary>
-        /// <remarks></remarks>
-        public static byte[] GetMixedKey(uint mix)
+        public static byte[] GenerateDerivedKey(uint salt)
         {
-            var key = (byte[])RawKeys.Clone();
-            for (var i = 0; i < key.Length; ++i)
+            var derived = (byte[])MasterKey.Clone();
+
+            // Manually xor the uint's byte values into the key.
+            for (var i = 0; i < derived.Length; ++i)
             {
                 var shift = (i << 3) & 0x1F;
-                key[i] ^= (byte)(mix >> shift);
+                derived[i] ^= (byte)(salt >> shift);
             }
 
-            return key;
+            return derived;
         }
 
         /// <summary>
-        /// Decrypts the input <see cref="data"/> using the provided <see cref="key"/>.
+        /// Decrypts the input <see cref="data"/> using the provided <see cref="salt"/>.
         /// </summary>
         /// <remarks>Throws an <see cref="InvalidDataException"/> if the decryption fails.</remarks>
-        public static byte[] Decrypt(uint key, byte[] data)
+        public static byte[] Decrypt(uint salt, byte[] data)
         {
             if (data.Length == 0)
                 return Array.Empty<byte>();
 
-            var decoder = new ResDecoder(key);
+            var decoder = new ResDecoder(salt);
             if (!decoder.TryDecryptBytes(data, out var decrypted))
                 throw new InvalidDataException();
             return decrypted;
         }
 
         /// <summary>
-        /// Decrypts &amp; decompresses (via <see cref="DeflateStream"/>) the input <see cref="data"/> using the provided <see cref="key"/>.
+        /// Decrypts &amp; decompresses (via <see cref="DeflateStream"/>) the input <see cref="data"/> using the provided <see cref="salt"/>.
         /// </summary>
         /// <remarks>Throws an <see cref="InvalidDataException"/> if the decryption fails.</remarks>
-        public static byte[] DecryptAndDecompress(uint key, byte[] data)
+        public static byte[] DecryptAndDecompress(uint salt, byte[] data)
         {
-            var decrypted = Decrypt(key, data);
+            var decrypted = Decrypt(salt, data);
             return DeflateStream.UncompressBuffer(decrypted);
         }
     }
