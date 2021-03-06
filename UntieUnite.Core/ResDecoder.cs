@@ -86,6 +86,10 @@ namespace UntieUnite.Core
 
         // Helpers
 
+        /// <summary>
+        /// Mixes the provided <see cref="mix"/> with the <see cref="RawKeys"/> value.
+        /// </summary>
+        /// <remarks></remarks>
         public static byte[] GetMixedKey(uint mix)
         {
             var key = (byte[])RawKeys.Clone();
@@ -98,6 +102,10 @@ namespace UntieUnite.Core
             return key;
         }
 
+        /// <summary>
+        /// Decrypts the input <see cref="data"/> using the provided <see cref="key"/>.
+        /// </summary>
+        /// <remarks>Throws an <see cref="InvalidDataException"/> if the decryption fails.</remarks>
         public static byte[] Decrypt(uint key, byte[] data)
         {
             if (data.Length == 0)
@@ -109,6 +117,10 @@ namespace UntieUnite.Core
             return decrypted;
         }
 
+        /// <summary>
+        /// Decrypts &amp; decompresses (via <see cref="DeflateStream"/>) the input <see cref="data"/> using the provided <see cref="key"/>.
+        /// </summary>
+        /// <remarks>Throws an <see cref="InvalidDataException"/> if the decryption fails.</remarks>
         public static byte[] DecryptAndDecompress(uint key, byte[] data)
         {
             var decrypted = Decrypt(key, data);

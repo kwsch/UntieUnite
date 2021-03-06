@@ -4,6 +4,9 @@ namespace UntieUnite.Core
 {
     public static class EncryptKey
     {
+        /// <summary>
+        /// Various keys used by magic names in the disassembly.
+        /// </summary>
         public static Dictionary<string, uint> EncryptionKeys = new()
         {
             {"LMNDataOceanMgr", _0xE18626DD},

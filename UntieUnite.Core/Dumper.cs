@@ -18,14 +18,16 @@ namespace UntieUnite.Core
         /// </summary>
         /// <param name="inDir">DLC_0 path</param>
         /// <param name="outDir">Directory to dump results in</param>
+        /// <param name="resMapPb">Option to save the raw data of the ResourceMap proto</param>
         /// <param name="jsonResMap">Option to save a json of the ResourceMap proto</param>
         /// <param name="extraData">Option to dump extra data (<see cref="DumpExtra"/>)</param>
-        public static void ExtractBins(string inDir, string outDir, bool jsonResMap = true, bool extraData = true)
+        public static void ExtractBins(string inDir, string outDir, bool resMapPb = true, bool jsonResMap = true, bool extraData = true)
         {
             Directory.CreateDirectory(outDir);
 
             var resMapData = GetResMap(inDir);
-            File.WriteAllBytes(Path.Combine(outDir, "ResMapPb.pb"), resMapData);
+            if (resMapPb)
+                File.WriteAllBytes(Path.Combine(outDir, "ResMapPb.pb"), resMapData);
 
             var resmap = PbResMap.Parser.ParseFrom(resMapData);
 
@@ -47,7 +49,7 @@ namespace UntieUnite.Core
         {
             var data = new byte[entry.Length];
             using var stream = entry.Open();
-            stream.Read(data, 0, data.Length);
+            stream.Read(data);
             return data;
         }
 
@@ -85,14 +87,16 @@ namespace UntieUnite.Core
                     var path = Path.Combine(inDir, "LanguageMap", $"{hash}.bytes");
                     var raw = File.ReadAllBytes(path);
                     var data = DecryptAndDecompress(EncryptKey._0x9B1728AF, raw);
-                    File.WriteAllBytes(Path.Combine(dirDumpLangMap, name), data);
+                    var dest = Path.Combine(dirDumpLangMap, name);
+                    File.WriteAllBytes(dest, data);
                 }
                 else if (name.StartsWith("databin"))
                 {
                     var entry = databinZip.GetEntry($"{hash}.bytes");
                     var raw = ReadZipEntry(entry);
                     var data = DecryptAndDecompress(EncryptKey._0x9B1728AF, raw);
-                    File.WriteAllBytes(Path.Combine(dirDumpDataBin, name), data);
+                    var dest = Path.Combine(dirDumpDataBin, name);
+                    File.WriteAllBytes(dest, data);
                 }
                 else if (name.StartsWith("lua"))
                 {
@@ -102,15 +106,16 @@ namespace UntieUnite.Core
                             continue;
 
                         var ep = resmap.ExtracPathStrPool[node.ExtractionPathId];
-                        var split = ep.Split("/");
-                        var relativePath = $"{split[^1]}.zip";
+                        var lastIndex = ep.LastIndexOf('/');
+                        var relativePath = $"{ep[(lastIndex + 1)..]}.zip";
                         var path = Path.Combine(inDir, relativePath);
                         using var luaZip = ZipFile.OpenRead(path);
 
                         var entry = luaZip.GetEntry($"{hash}.bytes");
                         var raw = ReadZipEntry(entry);
                         var data = Decrypt(EncryptKey._0xC0F7D582, raw);
-                        File.WriteAllBytes(Path.Combine(dirDumpLua, name), data);
+                        var dest = Path.Combine(dirDumpLua, name);
+                        File.WriteAllBytes(dest, data);
                         break;
                     }
                 }
