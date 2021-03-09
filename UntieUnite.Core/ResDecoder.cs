@@ -21,10 +21,8 @@ namespace UntieUnite.Core
             _aesCrypto = new AesCryptoServiceProvider { Key = GenerateDerivedKey(salt), IV = new byte[16] };
         }
 
-        public bool TryDecryptBytes(byte[] archive, [NotNullWhen(true)] out byte[]? decrypted)
+        public static bool IsResourceArchive(byte[] archive)
         {
-            /* On default failure, return null. */
-            decrypted = null;
 
             if (archive.Length < MagicAndPadding.Length)
                 return false;
@@ -34,6 +32,18 @@ namespace UntieUnite.Core
                 if (archive[i] != MagicAndPadding[i])
                     return false;
             }
+
+            return true;
+        }
+
+        public bool TryDecryptBytes(byte[] archive, [NotNullWhen(true)] out byte[]? decrypted)
+        {
+            /* On default failure, return null. */
+            decrypted = null;
+
+            /* Check that the data is a resource archive. */
+            if (!IsResourceArchive(archive))
+                return false;
 
             /* Get the archive's padding. */
             var padding = archive[3];
@@ -112,6 +122,9 @@ namespace UntieUnite.Core
             if (data.Length == 0)
                 return Array.Empty<byte>();
 
+            if (!IsResourceArchive(data))
+                return (byte[])data.Clone();
+
             var decoder = new ResDecoder(salt);
             if (!decoder.TryDecryptBytes(data, out var decrypted))
                 throw new InvalidDataException();
@@ -124,6 +137,12 @@ namespace UntieUnite.Core
         /// <remarks>Throws an <see cref="InvalidDataException"/> if the decryption fails.</remarks>
         public static byte[] DecryptAndDecompress(uint salt, byte[] data)
         {
+            if (data.Length == 0)
+                return Array.Empty<byte>();
+
+            if (!IsResourceArchive(data))
+                return (byte[])data.Clone();
+
             var decrypted = Decrypt(salt, data);
             return DeflateStream.UncompressBuffer(decrypted);
         }
