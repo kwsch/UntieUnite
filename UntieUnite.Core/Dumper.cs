@@ -21,7 +21,7 @@ namespace UntieUnite.Core
         /// <param name="resMapPb">Option to save the raw data of the ResourceMap proto</param>
         /// <param name="jsonResMap">Option to save a json of the ResourceMap proto</param>
         /// <param name="extraData">Option to dump extra data (<see cref="DumpExtra"/>)</param>
-        public static void ExtractBins(string inDir, string outDir, bool resMapPb = true, bool jsonResMap = true, bool extraData = true)
+        public static void ExtractBins(string inDir, string outDir, bool resMapPb = true, bool jsonResMap = true, bool extraData = true, bool sound = true)
         {
             Directory.CreateDirectory(outDir);
 
@@ -36,6 +36,9 @@ namespace UntieUnite.Core
 
             if (extraData)
                 DumpExtra(inDir, outDir, resmap);
+
+            if (sound)
+                DumpSound(inDir, outDir);
         }
 
         private static byte[] GetResMap(string inDir)
@@ -225,6 +228,20 @@ namespace UntieUnite.Core
             // Decrypt the bundle block.
             var size = BigEndian.ToInt32(bundle, offset + 0x8);
             AssetCrypto.DecryptAssetBundleCompressedBlockInfo(bundle, offset + 0x14, size);
+        }
+
+        private static void DumpSound(string inDir, string outDir)
+        {
+            var dirDumpSound = Path.Combine(outDir, "Sound", "Android");
+            Directory.CreateDirectory(dirDumpSound);
+
+            var sourceDir = new DirectoryInfo(Path.Combine(inDir, "Sound", "Android"));
+            foreach (var fi in sourceDir.GetFiles())
+            {
+                var archive = File.ReadAllBytes(fi.FullName);
+                if (SoundCrypto.IsSoundArchive(archive))
+                    File.WriteAllBytes(Path.Combine(dirDumpSound, fi.Name), SoundCrypto.Decrypt(archive));
+            }
         }
     }
 }
