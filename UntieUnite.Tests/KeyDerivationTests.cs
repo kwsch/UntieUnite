@@ -1,6 +1,4 @@
-using System.IO;
 using System.Linq;
-using System.Text;
 using FluentAssertions;
 using UntieUnite.Core;
 using Xunit;
@@ -38,6 +36,5 @@ namespace UntieUnite.Tests
             var key = SoundCrypto.GetSwitchKey(filename, header);
             key.SequenceEqual(actualKey).Should().BeTrue();
         }
-
     }
 }

@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace UntieUnite.Core
 {
@@ -58,6 +56,7 @@ namespace UntieUnite.Core
             0xa0a7aeb5, 0xbcc3cad1, 0xd8dfe6ed, 0xf4fb0209,
             0x10171e25, 0x2c333a41, 0x484f565d, 0x646b7279
         };
+
         private static uint RotateLeft(uint value, int count)
         {
             return (value << count) | (value >> (32 - count));
@@ -82,8 +81,8 @@ namespace UntieUnite.Core
         private static uint EncSub(uint x) => EncLinSub(NonLinSub(x));
         private static uint Round(ReadOnlySpan<uint> x, uint rk) => x[0] ^ EncSub(x[1] ^ x[2] ^ x[3] ^ rk);
 
-        private uint[] EncKey;
-        private uint[] DecKey;
+        private readonly uint[] EncKey;
+        private readonly uint[] DecKey;
 
         public SM4(byte[] key)
         {
@@ -109,12 +108,12 @@ namespace UntieUnite.Core
                 DecKey[i] = EncKey[31 - i];
         }
 
-        private void CryptBlockImpl(ReadOnlySpan<uint> rk, byte[] buffer, int ofs)
+        private static void CryptBlockImpl(ReadOnlySpan<uint> rk, byte[] buffer, int ofs)
         {
             var x = new uint[4];
 
             for (var i = 0; i < 4; ++i)
-                x[i] = BigEndian.ToUInt32(buffer, ofs + i * 4);
+                x[i] = BigEndian.ToUInt32(buffer, ofs + (i * 4));
 
             for (var i = 0; i < 32; ++i)
             {
@@ -126,7 +125,7 @@ namespace UntieUnite.Core
             }
 
             for (var i = 0; i < 4; ++i)
-                BigEndian.GetBytes(x[3 - i]).CopyTo(buffer, ofs + i * 4);
+                BigEndian.GetBytes(x[3 - i]).CopyTo(buffer, ofs + (i * 4));
         }
 
         public void EncryptBlock(byte[] buffer, int ofs) => CryptBlockImpl(EncKey, buffer, ofs);
@@ -153,6 +152,5 @@ namespace UntieUnite.Core
                 nextIv.CopyTo(curIv, 0);
             }
         }
-
     }
 }

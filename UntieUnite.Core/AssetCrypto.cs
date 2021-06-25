@@ -102,7 +102,6 @@ namespace UntieUnite.Core
 
             using var aes = new AesCryptoServiceProvider {Key = MetaDataAesKey, IV = MetaDataAesIV, Padding = PaddingMode.None, Mode = CipherMode.CBC};
 
-
             using var ms = new MemoryStream(metaBlockEnc, 0, metaBlockEnc.Length);
             using var cs = new CryptoStream(ms, aes.CreateDecryptor(), CryptoStreamMode.Read);
 
@@ -126,18 +125,17 @@ namespace UntieUnite.Core
         public static byte[] FixAssetBundleBlockInfo(byte[] blockInfo)
         {
             var blockInfoCount = BigEndian.ToInt32(blockInfo, 0x10);
-            var directoryCount = BigEndian.ToInt32(blockInfo, 0x14 + 0xC * blockInfoCount);
-
+            var directoryCount = BigEndian.ToInt32(blockInfo, 0x14 + (0xC * blockInfoCount));
 
             // Copy the fixed header
-            var fixedInfo = new byte[blockInfo.Length - 2 * blockInfoCount];
+            var fixedInfo = new byte[blockInfo.Length - (2 * blockInfoCount)];
             Buffer.BlockCopy(blockInfo, 0, fixedInfo, 0, 0x14);
 
             // Copy fixed block infos
             for (var i = 0; i < blockInfoCount; ++i)
             {
-                var blockOffset = 0x14 + 0xC * i;
-                var fixedOffset = 0x14 + 0xA * i;
+                var blockOffset = 0x14 + (0xC * i);
+                var fixedOffset = 0x14 + (0xA * i);
 
                 // Copy Uncompressed Size
                 Buffer.BlockCopy(blockInfo, blockOffset + 8, fixedInfo, fixedOffset + 0, 4);
@@ -150,19 +148,19 @@ namespace UntieUnite.Core
             }
 
             // Copy Directory Nodes
-            Buffer.BlockCopy(blockInfo, 0x14 + 0xC * blockInfoCount, fixedInfo, 0x14 + 0xA * blockInfoCount, blockInfo.Length - (0x14 + 0xC * blockInfoCount));
+            Buffer.BlockCopy(blockInfo, 0x14 + (0xC * blockInfoCount), fixedInfo, 0x14 + (0xA * blockInfoCount), blockInfo.Length - (0x14 + (0xC * blockInfoCount)));
 
             // Fix Directory Nodes
-            var curOfs = 0x14 + 0xA * blockInfoCount + 4;
+            var curOfs = 0x14 + (0xA * blockInfoCount) + 4;
             for (var i = 0; i < directoryCount; ++i)
             {
                 // Swap offset and size
                 var size = BitConverter.ToInt64(fixedInfo, curOfs);
                 var offset = BitConverter.ToInt64(fixedInfo, curOfs + 8);
-            
+
                 BitConverter.GetBytes(offset).CopyTo(fixedInfo, curOfs);
                 BitConverter.GetBytes(size).CopyTo(fixedInfo, curOfs + 8);
-            
+
                 // Advance to next directory node
                 curOfs = Array.FindIndex(fixedInfo, curOfs + 0x14, b => b == 0) + 1;
             }

@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.IO;
 using FluentAssertions;
 using UntieUnite.Core;
@@ -33,7 +32,7 @@ namespace UntieUnite.Tests
             var outDir = Path.Combine(outRoot, "rawProto");
             Directory.CreateDirectory(outDir);
 
-            var decompressed = FileUtil.DecompressZlib(decrypted);
+            var decompressed = FileUtil.DecompressZlib(decrypted!);
             var path = Path.Combine(outDir, "PbResMap.pb");
             File.WriteAllBytes(path, decompressed);
         }
@@ -54,7 +53,7 @@ namespace UntieUnite.Tests
             var path = Path.Combine(gmetaPath, "global-metadata.dat");
             var data = File.ReadAllBytes(path);
             var gm = new GlobalMetadata(data);
-            var lines = gm.GetEntries()
+            var lines = gm.GetEntries();
             var outPath = Path.Combine(gmetaPath, "global-metadata_strings.txt");
             File.WriteAllLines(outPath, lines);
         }

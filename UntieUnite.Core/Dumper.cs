@@ -22,6 +22,7 @@ namespace UntieUnite.Core
         /// <param name="resMapPb">Option to save the raw data of the ResourceMap proto</param>
         /// <param name="jsonResMap">Option to save a json of the ResourceMap proto</param>
         /// <param name="extraData">Option to dump extra data (<see cref="DumpExtra"/>)</param>
+        /// <param name="sound">Option to dump sound data</param>
         public static void ExtractBins(string inDir, string outDir, bool resMapPb = true, bool jsonResMap = true, bool extraData = true, bool sound = true)
         {
             Directory.CreateDirectory(outDir);
@@ -82,6 +83,7 @@ namespace UntieUnite.Core
         /// <param name="inDir">Directory that contains the raw DLC assets</param>
         /// <param name="outDir">Directory to write the result to.</param>
         /// <param name="resmap">Resource Map object instance</param>
+        /// <param name="assetFormat">Platform the data originated on</param>
         private static void DumpExtra(string inDir, string outDir, PbResMap resmap, AssetFormat assetFormat)
         {
             var dirDumpLangMap = Path.Combine(outDir, "LanguageMap");
@@ -129,6 +131,9 @@ namespace UntieUnite.Core
                         using var luaZip = ZipFile.OpenRead(path);
 
                         var entry = luaZip.GetEntry($"{hash}.bytes");
+                        if (entry is null)
+                            throw new NullReferenceException($"{nameof(entry)} from AssetID {node.Id} was invalid.");
+
                         var raw = ReadZipEntry(entry);
                         var data = Decrypt(EncryptKey._0xC0F7D582, raw);
                         var dest = Path.Combine(dirDumpLua, name);
@@ -211,7 +216,8 @@ namespace UntieUnite.Core
         /// <summary>
         /// Decrypts a Unity Asset Bundle (*.bundle)
         /// </summary>
-        /// <param name="bundle">Raw *.bundle file</param>
+        /// <param name="bundle_">Raw *.bundle file</param>
+        /// <param name="assetFormat">Platform the data originated on</param>
         /// <remarks>Early returns if it is not encrypted.</remarks>
         public static byte[] DecryptAssetBundle(byte[] bundle_, AssetFormat assetFormat)
         {
@@ -271,7 +277,6 @@ namespace UntieUnite.Core
             var compressedBlockInfo = new byte[compressedBlockSize];
             Buffer.BlockCopy(bundle, offset + 0x14, compressedBlockInfo, 0, compressedBlockSize);
 
-            
             byte[] blockInfo;
             switch (flags & 0x3F)
             {

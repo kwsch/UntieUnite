@@ -39,6 +39,7 @@ namespace UntieUnite.Core
             val |= data[offset + 1];
             return (ushort)val;
         }
+
         public static long ToInt64(byte[] data, int offset)
         {
             ulong val = 0;

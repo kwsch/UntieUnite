@@ -13,13 +13,13 @@ namespace UntieUnite.Core
 
         public static uint[] GetSwitchKey(string filename, uint header)
         {
-            var h0 = (0x14F3CD8Bul * (ulong)filename.Length + 0x346797A3ul) & 0xFFFFFFFFul;
-            var h1 = (0x14F3CD8Bul * ((0xCB98685Cu - 0x14F3CD8Bu * (uint)filename.Length) & 0xFFFFFFFF) + 0x346797A3ul) & 0xFFFFFFFFul;
+            var h0 = ((0x14F3CD8Bul * (ulong)filename.Length) + 0x346797A3ul) & 0xFFFFFFFFul;
+            var h1 = ((0x14F3CD8Bul * ((0xCB98685Cu - (0x14F3CD8Bu * (uint)filename.Length)) & 0xFFFFFFFF)) + 0x346797A3ul) & 0xFFFFFFFFul;
 
             foreach (var c in filename)
             {
-                h0 = 0x10F4AB * h0 + 0x17720F33 * (ulong)c;
-                h1 = 0x5994A7 * h1 + 0x17B32437 * (ulong)c;
+                h0 = (0x10F4AB * h0) + (0x17720F33 * (ulong)c);
+                h1 = (0x5994A7 * h1) + (0x17B32437 * (ulong)c);
             }
 
             header &= ~0xFu;
@@ -29,10 +29,10 @@ namespace UntieUnite.Core
             key[1] = BaseKeySwitch[1] ^ (uint)(h0 >>  0) ^ header;
             key[2] = BaseKeySwitch[2] ^ (uint)(h1 >> 32) ^ header;
             key[3] = BaseKeySwitch[3] ^ (uint)(h1 >>  0) ^ header;
-            key[4] = 0x14F3CD8Bu * key[0] + 0x346797A3u;
-            key[5] = 0x14F3CD8Bu * key[1] + 0x346797A3u;
-            key[6] = 0x14F3CD8Bu * key[2] + 0x346797A3u;
-            key[7] = 0x14F3CD8Bu * key[3] + 0x346797A3u;
+            key[4] = (0x14F3CD8Bu * key[0]) + 0x346797A3u;
+            key[5] = (0x14F3CD8Bu * key[1]) + 0x346797A3u;
+            key[6] = (0x14F3CD8Bu * key[2]) + 0x346797A3u;
+            key[7] = (0x14F3CD8Bu * key[3]) + 0x346797A3u;
             return key;
         }
 
@@ -54,24 +54,24 @@ namespace UntieUnite.Core
             var v1 = (uint)(block >> 32);
 
             var x0 = SwitchTweaks[idx % SwitchTweaks.Length] ^ idx;
-            var x1 = (0x8B * (x0 & 0xFF) - 0x5D) & 1u;
+            var x1 = ((0x8B * (x0 & 0xFF)) - 0x5D) & 1u;
 
-            var t0 = 0x14F3CD8B * x0 + 0x346797A3;
+            var t0 = (0x14F3CD8B * x0) + 0x346797A3;
             var t1 = 0x9E3779B9 * x1;
 
-            var key_ind = ((0x8B * (t0 & 0xFF) - 0x5D) & 3) + (((0x14F3CD8B * t0 + 0x346797A3) >> 31) & 1);
+            var key_ind = (((0x8B * (t0 & 0xFF)) - 0x5D) & 3) + ((((0x14F3CD8B * t0) + 0x346797A3) >> 31) & 1);
 
             v1 -= (((v0 << 4) ^ (v0 >> 5)) + v0) ^ (key[key_ind + ((t1 - 0x61C88647) & 3)] + t1 - 0x61C88647);
-            v0 -= (((v1 << 4) ^ (v1 >> 5)) + v1) ^ (key[key_ind + (t1 & 3)] - 0x61C88647 * x1);
+            v0 -= (((v1 << 4) ^ (v1 >> 5)) + v1) ^ (key[key_ind + (t1 & 3)] - (0x61C88647 * x1));
 
             if (x1 != 0)
             {
-                v1 -= (((v0 << 4) ^ (v0 >> 5)) + v0) ^ (key[key_ind + (((0x9E3779B9 * (t0 & 1)) >> 11) & 3)] - 0x61C88647 * (t0 & 1));
+                v1 -= (((v0 << 4) ^ (v0 >> 5)) + v0) ^ (key[key_ind + (((0x9E3779B9 * (t0 & 1)) >> 11) & 3)] - (0x61C88647 * (t0 & 1)));
                 v0 -= (((v1 << 4) ^ (v1 >> 5)) + v1) ^ (key[key_ind + ((t1 + 0x61C88647) & 3)] + t1 + 0x61C88647);
             }
 
             v0 ^= t0;
-            v1 ^= 0x14F3CD8B * t0 + 0x346797A3;
+            v1 ^= (0x14F3CD8B * t0) + 0x346797A3;
 
             return ((ulong)v0 << 0) | ((ulong)v1 << 32);
         }
@@ -95,7 +95,7 @@ namespace UntieUnite.Core
             var header = BitConverter.ToUInt32(data, 0);
             var paddingBytes = header & 0xF;
 
-            var rotate = (int)((2 * paddingBytes + 1) & 0x1C);
+            var rotate = (int)(((2 * paddingBytes) + 1) & 0x1C);
             var magic = (((header >> 4) << (28 - rotate)) & 0xFFFFFFF) | ((header >> 4) >> rotate);
             if (magic != 0xBA0CF89)
                 return false;

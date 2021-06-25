@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace UntieUnite.Core
+﻿namespace UntieUnite.Core
 {
     public enum AssetFormat
     {

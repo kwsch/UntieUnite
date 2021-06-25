@@ -27,7 +27,7 @@ namespace UntieUnite.Core
             _ => throw new ArgumentOutOfRangeException($"Invalid Asset Format ({format})")
         };
 
-        public byte[] MasterKey => GetMasterKey(_assetFormat);
+        public byte[] GetMasterKey() => GetMasterKey(_assetFormat);
 
         public ResDecoder(uint salt, AssetFormat format)
         {
@@ -41,8 +41,10 @@ namespace UntieUnite.Core
                 return false;
 
             for (var i = 0; i < 3; ++i)
+            {
                 if (archive[i] != magic[i])
                     return false;
+            }
 
             return true;
         }
@@ -61,7 +63,7 @@ namespace UntieUnite.Core
             var hash = 0u;
 
             foreach (var c in resName.ToUpper())
-                hash = 31 * hash + c;
+                hash = (31 * hash) + c;
 
             return hash;
         }
@@ -127,7 +129,7 @@ namespace UntieUnite.Core
         // Helpers
 
         /// <summary>
-        /// Key Derivation Function that simply XOR's the 32bit <see cref="salt"/> into the <see cref="MasterKey"/>.
+        /// Key Derivation Function that simply XOR's the 32bit <see cref="salt"/> into the <see cref="AssetFormat"/> MasterKey.
         /// </summary>
         public static byte[] GenerateDerivedKey(uint salt, AssetFormat format)
         {
