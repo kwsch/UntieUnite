@@ -1,4 +1,8 @@
-﻿namespace UntieUnite.Core
+﻿using System;
+using System.IO;
+using System.Security.Cryptography;
+
+namespace UntieUnite.Core
 {
     /// <summary>
     /// Decrypts Unity Bundles (*.bundle) files by cleaning up the metadata at the top.
@@ -68,6 +72,14 @@
             0x85, 0x1D, 0xFD, 0x3F, 0x51
         };
 
+        private static readonly byte[] MetaDataAesKey = {0xE3, 0x05, 0x62, 0x14, 0xD6, 0x0A, 0x20, 0x25, 0x36, 0x96, 0x1B, 0x07, 0x74, 0xDC, 0x24, 0x02};
+        private static readonly byte[] MetaDataAesIV = {0x1D, 0x6E, 0xEB, 0x4C, 0x86, 0xA9, 0x45, 0x44, 0x45, 0x72, 0x12, 0x21, 0x2B, 0x43, 0x25, 0x2F};
+
+        private static readonly byte[] BlockInfoSM4Key = {0x02, 0x24, 0xDC, 0x74, 0x07, 0x1B, 0x94, 0x36, 0x25, 0x20, 0x0A, 0xD6, 0x14, 0x62, 0x05, 0xE3};
+        private static readonly byte[] BlockInfoSM4IV = {0x79, 0x7B, 0xCD, 0x5D, 0x7D, 0x7B, 0xB1, 0x11, 0x43, 0xD0, 0x0D, 0x71, 0x3C, 0xDA, 0xA8, 0x08};
+
+        private static readonly SM4 _sm4 = new (BlockInfoSM4Key);
+
         private static void Decrypt(byte[] data, int offset, int size, byte[] key)
         {
             for (var i = 0; i < size; ++i)
@@ -81,9 +93,81 @@
             Decrypt(bundle, offset, MetaDataKey.Length, MetaDataKey);
         }
 
+        public static void DecryptAssetBundleSizeAes(byte[] bundle, int offset)
+        {
+            var metaBlockEnc = new byte[0x10];
+            BitConverter.GetBytes(BigEndian.ToUInt64(bundle, offset + 0)).CopyTo(metaBlockEnc, 0);
+            BitConverter.GetBytes(BigEndian.ToUInt32(bundle, offset + 8)).CopyTo(metaBlockEnc, 8);
+            BitConverter.GetBytes(BigEndian.ToUInt32(bundle, offset + 12)).CopyTo(metaBlockEnc, 12);
+
+            using var aes = new AesCryptoServiceProvider {Key = MetaDataAesKey, IV = MetaDataAesIV, Padding = PaddingMode.None, Mode = CipherMode.CBC};
+
+
+            using var ms = new MemoryStream(metaBlockEnc, 0, metaBlockEnc.Length);
+            using var cs = new CryptoStream(ms, aes.CreateDecryptor(), CryptoStreamMode.Read);
+
+            cs.Read(bundle, offset, metaBlockEnc.Length);
+
+            BitConverter.GetBytes(BigEndian.ToUInt64(bundle, offset + 0)).CopyTo(bundle, offset + 0);
+            BitConverter.GetBytes(BigEndian.ToUInt32(bundle, offset + 8)).CopyTo(bundle, offset + 8);
+            BitConverter.GetBytes(BigEndian.ToUInt32(bundle, offset + 12)).CopyTo(bundle, offset + 12);
+        }
+
         public static void DecryptAssetBundleCompressedBlockInfo(byte[] bundle, int offset, int size)
         {
             Decrypt(bundle, offset, size, BlockInfoKey);
+        }
+
+        public static void DecryptAssetBundleCompressedBlockInfoSM4(byte[] bundle, int offset, int size)
+        {
+            _sm4.DecryptCbc(BlockInfoSM4IV, bundle, offset, size);
+        }
+
+        public static byte[] FixAssetBundleBlockInfo(byte[] blockInfo)
+        {
+            var blockInfoCount = BigEndian.ToInt32(blockInfo, 0x10);
+            var directoryCount = BigEndian.ToInt32(blockInfo, 0x14 + 0xC * blockInfoCount);
+
+
+            // Copy the fixed header
+            var fixedInfo = new byte[blockInfo.Length - 2 * blockInfoCount];
+            Buffer.BlockCopy(blockInfo, 0, fixedInfo, 0, 0x14);
+
+            // Copy fixed block infos
+            for (var i = 0; i < blockInfoCount; ++i)
+            {
+                var blockOffset = 0x14 + 0xC * i;
+                var fixedOffset = 0x14 + 0xA * i;
+
+                // Copy Uncompressed Size
+                Buffer.BlockCopy(blockInfo, blockOffset + 8, fixedInfo, fixedOffset + 0, 4);
+
+                // Copy Compressed Size
+                Buffer.BlockCopy(blockInfo, blockOffset + 4, fixedInfo, fixedOffset + 4, 4);
+
+                // Copy Flags
+                Buffer.BlockCopy(blockInfo, blockOffset + 0, fixedInfo, fixedOffset + 8, 2);
+            }
+
+            // Copy Directory Nodes
+            Buffer.BlockCopy(blockInfo, 0x14 + 0xC * blockInfoCount, fixedInfo, 0x14 + 0xA * blockInfoCount, blockInfo.Length - (0x14 + 0xC * blockInfoCount));
+
+            // Fix Directory Nodes
+            var curOfs = 0x14 + 0xA * blockInfoCount + 4;
+            for (var i = 0; i < directoryCount; ++i)
+            {
+                // Swap offset and size
+                var size = BitConverter.ToInt64(fixedInfo, curOfs);
+                var offset = BitConverter.ToInt64(fixedInfo, curOfs + 8);
+            
+                BitConverter.GetBytes(offset).CopyTo(fixedInfo, curOfs);
+                BitConverter.GetBytes(size).CopyTo(fixedInfo, curOfs + 8);
+            
+                // Advance to next directory node
+                curOfs = Array.FindIndex(fixedInfo, curOfs + 0x14, b => b == 0) + 1;
+            }
+
+            return fixedInfo;
         }
     }
 }

@@ -11,29 +11,59 @@ namespace UntieUnite.Core
     /// </summary>
     public class ResDecoder
     {
-        public static readonly byte[] MasterKey = { 0xB2, 0x7F, 0x19, 0x12, 0x8D, 0x5F, 0xCB, 0x75, 0xB0, 0xEA, 0x2A, 0x60, 0xCC, 0x03, 0xA2, 0x55 };
-        public static readonly byte[] MagicAndPadding = { 0x9D, 0x4C, 0x2D, 0x00 };
+        public static readonly byte[] MasterKeyAndroid = { 0xB2, 0x7F, 0x19, 0x12, 0x8D, 0x5F, 0xCB, 0x75, 0xB0, 0xEA, 0x2A, 0x60, 0xCC, 0x03, 0xA2, 0x55 };
+        public static readonly byte[] MagicAndPaddingAndroid = { 0x9D, 0x4C, 0x2D, 0x00 };
+        public static readonly byte[] MasterKeySwitch = { 0x99, 0x64, 0xB1, 0xB0, 0x6B, 0x03, 0x8D, 0x7F, 0xB7, 0x7D, 0xB6, 0xA7, 0x54, 0x90, 0x8B, 0x73 };
+        public static readonly byte[] MagicAndPaddingSwitch = { 0x22, 0x4A, 0x67, 0x00 };
+        public static readonly byte[] MagicAndPaddingSwitch2 = { 0x22, 0x4A, 0xEF, 0x00 };
 
         private readonly AesCryptoServiceProvider _aesCrypto;
+        private readonly AssetFormat _assetFormat;
 
-        public ResDecoder(uint salt)
+        public static byte[] GetMasterKey(AssetFormat format) => format switch
         {
-            _aesCrypto = new AesCryptoServiceProvider { Key = GenerateDerivedKey(salt), IV = new byte[16] };
+            AssetFormat.Android => MasterKeyAndroid,
+            AssetFormat.Switch => MasterKeySwitch,
+            _ => throw new ArgumentOutOfRangeException($"Invalid Asset Format ({format})")
+        };
+
+        public byte[] MasterKey => GetMasterKey(_assetFormat);
+
+        public ResDecoder(uint salt, AssetFormat format)
+        {
+            _aesCrypto = new AesCryptoServiceProvider { Key = GenerateDerivedKey(salt, format), IV = new byte[16] };
+            _assetFormat = format;
         }
 
-        public static bool IsResourceArchive(byte[] archive)
+        private static bool IsValidMagic(byte[] archive, byte[] magic)
         {
-
-            if (archive.Length < MagicAndPadding.Length)
+            if (archive.Length < magic.Length)
                 return false;
 
             for (var i = 0; i < 3; ++i)
-            {
-                if (archive[i] != MagicAndPadding[i])
+                if (archive[i] != magic[i])
                     return false;
-            }
 
             return true;
+        }
+
+        public static AssetFormat GetAssetFormat(byte[] archive)
+        {
+            if (IsValidMagic(archive, MagicAndPaddingAndroid))
+                return AssetFormat.Android;
+            if (IsValidMagic(archive, MagicAndPaddingSwitch) || IsValidMagic(archive, MagicAndPaddingSwitch2))
+                return AssetFormat.Switch;
+            return AssetFormat.Invalid;
+        }
+
+        public static uint GetAssetSalt(string resName)
+        {
+            var hash = 0u;
+
+            foreach (var c in resName.ToUpper())
+                hash = 31 * hash + c;
+
+            return hash;
         }
 
         public bool TryDecryptBytes(byte[] archive, [NotNullWhen(true)] out byte[]? decrypted)
@@ -42,7 +72,7 @@ namespace UntieUnite.Core
             decrypted = null;
 
             /* Check that the data is a resource archive. */
-            if (!IsResourceArchive(archive))
+            if (GetAssetFormat(archive) == AssetFormat.Invalid)
                 return false;
 
             /* Get the archive's padding. */
@@ -99,9 +129,9 @@ namespace UntieUnite.Core
         /// <summary>
         /// Key Derivation Function that simply XOR's the 32bit <see cref="salt"/> into the <see cref="MasterKey"/>.
         /// </summary>
-        public static byte[] GenerateDerivedKey(uint salt)
+        public static byte[] GenerateDerivedKey(uint salt, AssetFormat format)
         {
-            var derived = (byte[])MasterKey.Clone();
+            var derived = (byte[])GetMasterKey(format).Clone();
 
             // Manually xor the uint's byte values into the key.
             for (var i = 0; i < derived.Length; ++i)
@@ -122,10 +152,12 @@ namespace UntieUnite.Core
             if (data.Length == 0)
                 return Array.Empty<byte>();
 
-            if (!IsResourceArchive(data))
+            var format = GetAssetFormat(data);
+
+            if (format == AssetFormat.Invalid)
                 return (byte[])data.Clone();
 
-            var decoder = new ResDecoder(salt);
+            var decoder = new ResDecoder(salt, format);
             if (!decoder.TryDecryptBytes(data, out var decrypted))
                 throw new InvalidDataException();
             return decrypted;
@@ -140,7 +172,7 @@ namespace UntieUnite.Core
             if (data.Length == 0)
                 return Array.Empty<byte>();
 
-            if (!IsResourceArchive(data))
+            if (GetAssetFormat(data) == AssetFormat.Invalid)
                 return (byte[])data.Clone();
 
             var decrypted = Decrypt(salt, data);

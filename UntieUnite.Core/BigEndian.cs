@@ -8,6 +8,20 @@ namespace UntieUnite.Core
     /// <remarks>Because Big Endian byte ordering confuses reverse engineers? (no).</remarks>
     public static class BigEndian
     {
+        public static ulong ToUInt64(byte[] data, int offset)
+        {
+            ulong val = 0;
+            val |= (ulong)data[offset + 0] << 56;
+            val |= (ulong)data[offset + 1] << 48;
+            val |= (ulong)data[offset + 2] << 40;
+            val |= (ulong)data[offset + 3] << 32;
+            val |= (ulong)data[offset + 4] << 24;
+            val |= (ulong)data[offset + 5] << 16;
+            val |= (ulong)data[offset + 6] << 8;
+            val |= (ulong)data[offset + 7];
+            return val;
+        }
+
         public static uint ToUInt32(byte[] data, int offset)
         {
             int val = 0;
@@ -24,6 +38,19 @@ namespace UntieUnite.Core
             val |= data[offset + 0] << 8;
             val |= data[offset + 1];
             return (ushort)val;
+        }
+        public static long ToInt64(byte[] data, int offset)
+        {
+            ulong val = 0;
+            val |= (ulong)data[offset + 0] << 56;
+            val |= (ulong)data[offset + 1] << 48;
+            val |= (ulong)data[offset + 2] << 40;
+            val |= (ulong)data[offset + 3] << 32;
+            val |= (ulong)data[offset + 4] << 24;
+            val |= (ulong)data[offset + 5] << 16;
+            val |= (ulong)data[offset + 6] << 8;
+            val |= (ulong)data[offset + 7];
+            return (long)val;
         }
 
         public static int ToInt32(byte[] data, int offset)
@@ -44,12 +71,22 @@ namespace UntieUnite.Core
             return (short)val;
         }
 
+        public static byte[] GetBytes(long value)
+        {
+            return Invert(BitConverter.GetBytes(value));
+        }
+
         public static byte[] GetBytes(int value)
         {
             return Invert(BitConverter.GetBytes(value));
         }
 
         public static byte[] GetBytes(short value)
+        {
+            return Invert(BitConverter.GetBytes(value));
+        }
+
+        public static byte[] GetBytes(ulong value)
         {
             return Invert(BitConverter.GetBytes(value));
         }

@@ -2,6 +2,7 @@
 using System.IO;
 using System.IO.Compression;
 using System.Text;
+using K4os.Compression.LZ4;
 using Newtonsoft.Json;
 using PbSerial;
 using static UntieUnite.Core.ResDecoder;
@@ -25,27 +26,40 @@ namespace UntieUnite.Core
         {
             Directory.CreateDirectory(outDir);
 
-            var resMapData = GetResMap(inDir);
+            var resMapRaw = GetResMapRaw(inDir);
+            var resMapFormat = GetAssetFormat(resMapRaw);
+            var resMapData = DecryptResMap(resMapRaw, resMapFormat);
             if (resMapPb)
                 File.WriteAllBytes(Path.Combine(outDir, "ResMapPb.pb"), resMapData);
 
             var resmap = PbResMap.Parser.ParseFrom(resMapData);
 
             if (jsonResMap)
-                ExportResMapJson(outDir, resmap);
+                ExportResMapJson(outDir, resmap, resMapFormat);
 
             if (extraData)
-                DumpExtra(inDir, outDir, resmap);
+                DumpExtra(inDir, outDir, resmap, resMapFormat);
 
             if (sound)
-                DumpSound(inDir, outDir);
+                DumpSound(inDir, outDir, resMapFormat);
         }
 
-        private static byte[] GetResMap(string inDir)
+        private static byte[] GetResMapRaw(string inDir)
         {
             var resMapPath = Path.Combine(inDir, "ResMapPb.bytes");
-            var resMapRaw = File.ReadAllBytes(resMapPath);
-            return DecryptAndDecompress(EncryptKey._0xC093D547, resMapRaw);
+            return File.ReadAllBytes(resMapPath);
+        }
+
+        private static byte[] DecryptResMap(byte[] resMapRaw, AssetFormat format)
+        {
+            var salt = format switch
+            {
+                AssetFormat.Android => EncryptKey._0xC093D547,
+                AssetFormat.Switch => GetAssetSalt("ResMapPb.bytes"),
+                _ => throw new ArgumentOutOfRangeException($"Invalid AssetFormat for ResMapPb.bytes ({format})"),
+            };
+
+            return DecryptAndDecompress(salt, resMapRaw);
         }
 
         private static byte[] ReadZipEntry(ZipArchiveEntry entry)
@@ -56,7 +70,7 @@ namespace UntieUnite.Core
             return data;
         }
 
-        private static void ExportResMapJson(string outDir, PbResMap resmap)
+        private static void ExportResMapJson(string outDir, PbResMap resmap, AssetFormat assetFormat)
         {
             var serialized = JsonConvert.SerializeObject(resmap, Formatting.Indented);
             File.WriteAllText(Path.Combine(outDir, "ResMapPb.json"), serialized);
@@ -68,7 +82,7 @@ namespace UntieUnite.Core
         /// <param name="inDir">Directory that contains the raw DLC assets</param>
         /// <param name="outDir">Directory to write the result to.</param>
         /// <param name="resmap">Resource Map object instance</param>
-        private static void DumpExtra(string inDir, string outDir, PbResMap resmap)
+        private static void DumpExtra(string inDir, string outDir, PbResMap resmap, AssetFormat assetFormat)
         {
             var dirDumpLangMap = Path.Combine(outDir, "LanguageMap");
             var dirDumpDataBin = Path.Combine(outDir, "Databins");
@@ -80,8 +94,8 @@ namespace UntieUnite.Core
             Directory.CreateDirectory(dirDumpLua);
             Directory.CreateDirectory(dirDumpAssetBundle);
 
-            var dataBinPath = Path.Combine(inDir, "Databins.zip");
-            using var databinZip = ZipFile.OpenRead(dataBinPath);
+            //var dataBinPath = Path.Combine(inDir, "Databins.zip");
+            //using var databinZip = ZipFile.OpenRead(dataBinPath);
 
             foreach (var (hash, name) in resmap.HashToAssetNames)
             {
@@ -95,11 +109,11 @@ namespace UntieUnite.Core
                 }
                 else if (name.StartsWith("databin"))
                 {
-                    var entry = databinZip.GetEntry($"{hash}.bytes");
-                    var raw = ReadZipEntry(entry);
-                    var data = DecryptAndDecompress(EncryptKey._0x9B1728AF, raw);
-                    var dest = Path.Combine(dirDumpDataBin, name);
-                    File.WriteAllBytes(dest, data);
+                    //var entry = databinZip.GetEntry($"{hash}.bytes");
+                    //var raw = ReadZipEntry(entry);
+                    //var data = DecryptAndDecompress(EncryptKey._0x9B1728AF, raw);
+                    //var dest = Path.Combine(dirDumpDataBin, name);
+                    //File.WriteAllBytes(dest, data);
                 }
                 else if (name.StartsWith("lua"))
                 {
@@ -131,10 +145,10 @@ namespace UntieUnite.Core
                 var path = Path.Combine(inDir, fileName);
                 var bundle = File.ReadAllBytes(path);
 
-                DecryptAssetBundle(bundle);
+                var decBundle = DecryptAssetBundle(bundle, assetFormat);
 
                 var dest = Path.Combine(dirDumpAssetBundle, fileName);
-                File.WriteAllBytes(dest, bundle);
+                File.WriteAllBytes(dest, decBundle);
             }
         }
 
@@ -199,15 +213,16 @@ namespace UntieUnite.Core
         /// </summary>
         /// <param name="bundle">Raw *.bundle file</param>
         /// <remarks>Early returns if it is not encrypted.</remarks>
-        public static void DecryptAssetBundle(byte[] bundle)
+        public static byte[] DecryptAssetBundle(byte[] bundle_, AssetFormat assetFormat)
         {
+            var bundle = (byte[]) bundle_.Clone();
             var signatureLen = Array.IndexOf(bundle, (byte)0, 0);
             if (Encoding.UTF8.GetString(bundle, 0, signatureLen) != "UnityFS")
-                return;
+                throw new ArgumentException("Invalid Bundle Signature");
 
             var version = BigEndian.ToUInt32(bundle, signatureLen + 1);
             if (version > 6)
-                return;
+                throw new ArgumentException("Invalid Bundle Version");
 
             var unityVersionEnd = Array.IndexOf(bundle, (byte)0, signatureLen + 1 + 4);
             var unityRevisionEnd = Array.IndexOf(bundle, (byte)0, unityVersionEnd + 1);
@@ -217,30 +232,108 @@ namespace UntieUnite.Core
             // Check that the bundle is actually encrypted.
             var flags = BigEndian.ToUInt32(bundle, offset + 0x10);
             if ((flags & 0x200) == 0)
-                return;
+                return bundle;
 
             // Decrypt the bundle size.
-            AssetCrypto.DecryptAssetBundleSize(bundle, offset);
+            switch (assetFormat)
+            {
+                case AssetFormat.Android:
+                    AssetCrypto.DecryptAssetBundleSize(bundle, offset);
+                    break;
+                case AssetFormat.Switch:
+                    AssetCrypto.DecryptAssetBundleSizeAes(bundle, offset);
+                    break;
+            }
 
             // Clear the compressed bit.
-            BigEndian.GetBytes(flags & ~0x200u).CopyTo(bundle, offset + 0x10);
+            flags &= ~0x200u;
+            BigEndian.GetBytes(flags).CopyTo(bundle, offset + 0x10);
 
             // Decrypt the bundle block.
-            var size = BigEndian.ToInt32(bundle, offset + 0x8);
-            AssetCrypto.DecryptAssetBundleCompressedBlockInfo(bundle, offset + 0x14, size);
+            var compressedBlockSize = BigEndian.ToInt32(bundle, offset + 0x8);
+            var blockSize = BigEndian.ToInt32(bundle, offset + 0xC);
+
+            switch (assetFormat)
+            {
+                case AssetFormat.Android:
+                    AssetCrypto.DecryptAssetBundleCompressedBlockInfo(bundle, offset + 0x14, compressedBlockSize);
+                    break;
+                case AssetFormat.Switch:
+                    AssetCrypto.DecryptAssetBundleCompressedBlockInfoSM4(bundle, offset + 0x14, compressedBlockSize);
+                    break;
+            }
+
+            // If Android, we're done.
+            if (assetFormat == AssetFormat.Android)
+                return bundle;
+
+            // If switch, we need to fix up the compressed block info.
+            var compressedBlockInfo = new byte[compressedBlockSize];
+            Buffer.BlockCopy(bundle, offset + 0x14, compressedBlockInfo, 0, compressedBlockSize);
+
+            
+            byte[] blockInfo;
+            switch (flags & 0x3F)
+            {
+                default:
+                    blockInfo = (byte[]) compressedBlockInfo.Clone();
+                    break;
+                case 1: // LZMA
+                    {
+                        using var compressedStream = new MemoryStream(compressedBlockInfo);
+                        using var uncompressedStream = new MemoryStream(blockSize);
+                        var decoder = new SevenZip.Compression.LZMA.Decoder();
+                        var properties = new byte[5];
+                        compressedStream.Read(properties, 0, 5);
+                        decoder.SetDecoderProperties(properties);
+                        decoder.Code(compressedStream, uncompressedStream, compressedBlockSize - 5, blockSize, null);
+
+                        blockInfo = uncompressedStream.ToArray();
+                    }
+                    break;
+                case 2: // LZ4
+                case 3: // LZ4HC
+                    blockInfo = new byte[blockSize];
+                    LZ4Codec.Decode(compressedBlockInfo, 0, compressedBlockSize, blockInfo, 0, blockSize);
+                    break;
+            }
+
+            // Clear the compression type.
+            flags &= ~0x3Fu;
+            BigEndian.GetBytes(flags).CopyTo(bundle, offset + 0x10);
+
+            // Generate fixed block info
+            var fixedBlockInfo = AssetCrypto.FixAssetBundleBlockInfo(blockInfo);
+
+            // Generate fixed asset bundle
+            var fixedBundle = new byte[bundle.Length - compressedBlockInfo.Length + fixedBlockInfo.Length];
+            Buffer.BlockCopy(bundle, 0, fixedBundle, 0, offset + 0x14);
+            Buffer.BlockCopy(fixedBlockInfo, 0, fixedBundle, offset + 0x14, fixedBlockInfo.Length);
+            Buffer.BlockCopy(bundle, offset + 0x14 + compressedBlockInfo.Length, fixedBundle, offset + 0x14 + fixedBlockInfo.Length, bundle.Length - (offset + 0x14 + compressedBlockInfo.Length));
+
+            BigEndian.GetBytes((ulong)fixedBundle.Length).CopyTo(fixedBundle, offset);
+            BigEndian.GetBytes(fixedBlockInfo.Length).CopyTo(fixedBundle, offset + 8);
+            BigEndian.GetBytes(fixedBlockInfo.Length).CopyTo(fixedBundle, offset + 12);
+
+            return fixedBundle;
         }
 
-        private static void DumpSound(string inDir, string outDir)
+        private static void DumpSound(string inDir, string outDir, AssetFormat assetFormat)
         {
-            var dirDumpSound = Path.Combine(outDir, "Sound", "Android");
+            var dirDumpSound = Path.Combine(outDir, "Sound", "Switch");
             Directory.CreateDirectory(dirDumpSound);
 
-            var sourceDir = new DirectoryInfo(Path.Combine(inDir, "Sound", "Android"));
+            var sourceDir = new DirectoryInfo(Path.Combine(inDir, "Sound", "Switch"));
             foreach (var fi in sourceDir.GetFiles())
             {
                 var archive = File.ReadAllBytes(fi.FullName);
                 if (SoundCrypto.IsSoundArchive(archive))
                     File.WriteAllBytes(Path.Combine(dirDumpSound, fi.Name), SoundCrypto.Decrypt(archive));
+
+                if (fi.Name == "oe7e311ed.bin")
+                {
+                    File.WriteAllBytes(Path.Combine(dirDumpSound, fi.Name), SoundCrypto.DecryptSwitch("snd_Init.bnk", archive));
+                }
             }
         }
     }
