@@ -177,8 +177,7 @@ namespace UntieUnite.Core
                 var dest = Path.Combine(dirDumpAssetBundle, fileName);
                 File.WriteAllBytes(dest, decBundle);
             }
-            // Crude way for language files 
-            // Don't PR proper way - I know how to do it correctly
+            // Crude way for language files
             if (!String.IsNullOrEmpty(langzip)) {
                 string mapPath = Path.Combine(inDir, "LanguageMap", "538308141.bytes");
                 byte[] langm = ResDecoder.DecryptAndDecompress(2177676813, File.ReadAllBytes(mapPath));

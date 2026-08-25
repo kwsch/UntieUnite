@@ -78,6 +78,9 @@ namespace UntieUnite.Core
         private static readonly byte[] BlockInfoSM4Key = {0x02, 0x24, 0xDC, 0x74, 0x07, 0x1B, 0x94, 0x36, 0x25, 0x20, 0x0A, 0xD6, 0x14, 0x62, 0x05, 0xE3};
         private static readonly byte[] BlockInfoSM4IV = {0x79, 0x7B, 0xCD, 0x5D, 0x7D, 0x7B, 0xB1, 0x11, 0x43, 0xD0, 0x0D, 0x71, 0x3C, 0xDA, 0xA8, 0x08};
 
+        private static readonly byte[] SM4Shuffle = { 8, 15, 11, 2, 3, 6, 12, 13, 7, 14, 9, 4, 1, 10, 5, 0 };
+        private static readonly byte[] AESShuffle = { 8, 13, 1, 10, 5, 15, 3, 0, 6, 12, 7, 14, 9, 4, 11, 2 };
+
         private static readonly SM4 _sm4 = new (BlockInfoSM4Key);
 
         private static void Decrypt(byte[] data, int offset, int size, byte[] key)
@@ -88,12 +91,31 @@ namespace UntieUnite.Core
             }
         }
 
+        private static byte[] ShuffleKey(byte[] key, ReadOnlySpan<byte> order)
+        {
+            byte[] rKey = new byte[16];
+            for (int i = 0; i < order.Length; i++)
+                rKey[i] = key[order[i]];
+
+            return rKey;
+        }
+
+        private static void DeobfuscateBlock(byte[] data, int ofs, int length, byte[] sKey)
+        {
+            byte[] tmp = (byte[])sKey.Clone();
+            for (int i = 0; i < length; i++) {
+                byte b = data[ofs + i];
+                data[ofs + i] ^= tmp[i & 0xF];
+                tmp[i & 0xF] += b;
+            }
+        }
+
         public static void DecryptAssetBundleSize(byte[] bundle, int offset)
         {
             Decrypt(bundle, offset, MetaDataKey.Length, MetaDataKey);
         }
 
-        public static void DecryptAssetBundleSizeAes(byte[] bundle, int offset, byte[] securityKey = null)
+        public static void DecryptAssetBundleSizeAes(byte[] bundle, int offset, byte[] sKey = null)
         {
             var metaBlockEnc = new byte[0x10];
             BitConverter.GetBytes(BigEndian.ToUInt64(bundle, offset + 0)).CopyTo(metaBlockEnc, 0);
@@ -104,8 +126,8 @@ namespace UntieUnite.Core
 
             var useKey = MetaDataAesKey;
             var useIV = MetaDataAesIV;
-            if (securityKey != null) {
-                useKey = securityKey;
+            if (sKey != null) {
+                useKey = ShuffleKey(sKey, AESShuffle);
                 useIV = BlockInfoSM4IV;
             }
 
@@ -115,6 +137,9 @@ namespace UntieUnite.Core
             using var cs = new CryptoStream(ms, aes.CreateDecryptor(), CryptoStreamMode.Read);
 
             cs.Read(bundle, offset, metaBlockEnc.Length);
+            
+            if (sKey != null) // 0x400
+                DeobfuscateBlock(bundle, offset, metaBlockEnc.Length, sKey);
 
             BitConverter.GetBytes(BigEndian.ToUInt64(bundle, offset + 0)).CopyTo(bundle, offset + 0);
             BitConverter.GetBytes(BigEndian.ToUInt32(bundle, offset + 8)).CopyTo(bundle, offset + 8);
@@ -126,13 +151,14 @@ namespace UntieUnite.Core
             Decrypt(bundle, offset, size, BlockInfoKey);
         }
 
-        public static void DecryptAssetBundleCompressedBlockInfoSM4(byte[] bundle, int offset, int size, byte[] securityKey = null)
+        public static void DecryptAssetBundleCompressedBlockInfoSM4(byte[] bundle, int offset, int size, byte[] sKey = null)
         {
-            if (securityKey == null || securityKey.Length != 16) {
+            if (sKey == null || sKey.Length != 16) {
                 _sm4.DecryptCbc(BlockInfoSM4IV, bundle, offset, size);
             } else {
-                SM4 _single_sm4 = new (securityKey);
+                SM4 _single_sm4 = new (ShuffleKey(sKey, SM4Shuffle));
                 _single_sm4.DecryptCbc(BlockInfoSM4IV, bundle, offset, size);
+                DeobfuscateBlock(bundle, offset, size, sKey);
             }
         }
 

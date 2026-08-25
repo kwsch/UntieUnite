@@ -78,6 +78,67 @@ namespace UntieUnite.Core
             return hash;
         }
 
+		private static uint LEUint32(byte[] data, int offset)
+        {
+            int val = 0;
+            val |= data[offset + 0];
+            val |= data[offset + 1] << 8;
+            val |= data[offset + 2] << 16;
+            val |= data[offset + 3] << 24;
+            return (uint)val;
+        }
+
+        private bool TryDecryptBytesNew(byte[] archive, [NotNullWhen(true)] out byte[]? decrypted)
+        {
+            /* On default failure, return null. */
+            decrypted = null;
+            /* Get the archive's padding. */
+            int flags = LEUint32(archive, 4);
+            int size = LEUint32(archive, 8);
+            int hashCode = LEUint32(archive, 12);
+			byte[] data = archive[16..];
+
+			if ((flags & 256) != 0) { // AES
+				try
+				{
+					ReadOnlySpan<byte> decSpan = Decrypt(data, 0, data.Length, 0);
+					int padding = decSpan[^1];
+					if (padding > 0 && padding <= 16)
+						decSpan = decSpan[..^padding];
+					data = decSpan.ToArray();
+				}
+				catch (CryptographicException cex)
+				{
+					Console.WriteLine(cex);
+					return false;
+				}
+				catch (InvalidOperationException iex)
+				{
+					Console.WriteLine(iex);
+					return false;
+				}
+			}
+			if ((flags & 4) != 0) { // LZMA
+                // using var compressedStream = new MemoryStream(data);
+                // using var uncompressedStream = new MemoryStream();
+                // var decoder = new SevenZip.Compression.LZMA.Decoder();
+                // var properties = new byte[5];
+                // compressedStream.Read(properties, 0, 5);
+				// decompressedSize = size ??
+                // decoder.SetDecoderProperties(properties);
+                // decoder.Code(compressedStream, uncompressedStream, compressedStream.Length - compressedStream.Position, decompressedSize, null);
+				// 
+                // blockInfo = uncompressedStream.ToArray();
+			}
+			if ((flags & 1) != 0) { // DEFLATE
+				// data = DeflateStream.UncompressBuffer(data); // presumably
+			}
+           //  if (hashCode != HashUtil.GetHashCode(data))
+           //      return false;
+			decrypted = data;
+            return true;
+		}
+
         public bool TryDecryptBytes(byte[] archive, [NotNullWhen(true)] out byte[]? decrypted)
         {
             /* On default failure, return null. */
@@ -89,6 +150,8 @@ namespace UntieUnite.Core
 
             /* Get the archive's padding. */
             var padding = archive[3];
+			if (padding == 0xEF)
+				return TryDecryptBytesNew(archive, decrypted);
             if (padding > 0x10)
                 return false;
 
