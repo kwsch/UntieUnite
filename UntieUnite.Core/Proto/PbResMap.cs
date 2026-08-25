@@ -31,41 +31,42 @@ namespace PbSerial {
             "C1Jlc1BhdGhBYklkGAggASgFEhEKCVJlc1R5cGVJZBgJIAEoBRIRCglLZWVw",
             "SW5NZW0YCiABKAgSDwoHRXh0cmFjdBgLIAEoCBIYChBFeHRyYWN0aW9uUGF0",
             "aElkGAwgASgFEhQKDElzSW5PdGhlckRMQxgNIAEoBRIRCglEZXBlbmRJZHMY",
-            "ECADKAUiVAoNUGJBc3NldEJ1bmRsZRIMCgRuYW1lGAEgASgJEgwKBEFiSWQY",
-            "AiABKAUSDwoHY29udGVudBgDIAMoCRIWCg5jb250ZW50SW5kaWNlcxgEIAMo",
-            "BSJHCglQYkRsY05vZGUSEgoKYnVuZGxlTmFtZRgBIAEoCRILCgNtZDUYAiAB",
-            "KAkSDAoEc2l6ZRgDIAEoDRILCgNsb2QYBCABKAUi9wgKCFBiUmVzTWFwEg8K",
-            "B3ZlcnNpb24YASABKAkSGwoTYnVuZGxlX3ZlcnNpb25fbmFtZRgDIAEoCRIb",
-            "ChNidW5kbGVfdmVyc2lvbl9jb2RlGAQgASgFEhoKEmdjbG91ZF9yZXNfdmVy",
-            "c2lvbhgFIAEoBRIdChViYXR0bGVfbWF0Y2hfdmVyc2lvbjAYBiABKAQSHQoV",
-            "YmF0dGxlX21hdGNoX3ZlcnNpb24xGAcgASgEEh8KF2JhdHRsZV9jb21wbGV0",
-            "ZV92ZXJzaW9uGAggASgFEiMKG2JhdHRsZV9tYXRjaF9zaWduYXR1cmVfY29k",
-            "ZRgJIAEoCRIiChpiYXR0bGVfbWF0Y2hfc2lnbmF0dXJlX3JlcxgKIAEoCRIk",
-            "ChxiYXR0bGVfbWF0Y2hfc2lnbmF0dXJlX3RhYmxlGAsgASgFEkIKEEhhc2hU",
-            "b0Fzc2V0TmFtZXMYDCADKAsyKC5QYlNlcmlhbC5QYlJlc01hcC5IYXNoVG9B",
-            "c3NldE5hbWVzRW50cnkSKAoLcmVzTm9kZUxpc3QYDSADKAsyEy5QYlNlcmlh",
-            "bC5QYlJlc05vZGUSLQoMYXNzZXRidW5kbGVzGA4gAygLMhcuUGJTZXJpYWwu",
-            "UGJBc3NldEJ1bmRsZRIlCghEbGNOb2RlcxgPIAMoCzITLlBiU2VyaWFsLlBi",
-            "RGxjTm9kZRI2CgpFeHRTdHJQb29sGBEgAygLMiIuUGJTZXJpYWwuUGJSZXNN",
-            "YXAuRXh0U3RyUG9vbEVudHJ5EkQKEUV4dHJhY1BhdGhTdHJQb29sGBIgAygL",
-            "MikuUGJTZXJpYWwuUGJSZXNNYXAuRXh0cmFjUGF0aFN0clBvb2xFbnRyeRI4",
-            "CgtUeXBlU3RyUG9vbBgTIAMoCzIjLlBiU2VyaWFsLlBiUmVzTWFwLlR5cGVT",
-            "dHJQb29sRW50cnkSPgoOUmVzUGF0aFN0clBvb2wYFCADKAsyJi5QYlNlcmlh",
-            "bC5QYlJlc01hcC5SZXNQYXRoU3RyUG9vbEVudHJ5EjYKCkhhc2hUb01kNXMY",
-            "FSADKAsyIi5QYlNlcmlhbC5QYlJlc01hcC5IYXNoVG9NZDVzRW50cnkaNwoV",
-            "SGFzaFRvQXNzZXROYW1lc0VudHJ5EgsKA2tleRgBIAEoDRINCgV2YWx1ZRgC",
-            "IAEoCToCOAEaMQoPRXh0U3RyUG9vbEVudHJ5EgsKA2tleRgBIAEoBRINCgV2",
-            "YWx1ZRgCIAEoCToCOAEaOAoWRXh0cmFjUGF0aFN0clBvb2xFbnRyeRILCgNr",
-            "ZXkYASABKAUSDQoFdmFsdWUYAiABKAk6AjgBGjIKEFR5cGVTdHJQb29sRW50",
-            "cnkSCwoDa2V5GAEgASgFEg0KBXZhbHVlGAIgASgJOgI4ARo1ChNSZXNQYXRo",
-            "U3RyUG9vbEVudHJ5EgsKA2tleRgBIAEoBRINCgV2YWx1ZRgCIAEoCToCOAEa",
-            "MQoPSGFzaFRvTWQ1c0VudHJ5EgsKA2tleRgBIAEoDRINCgV2YWx1ZRgCIAEo",
-            "CToCOAFCC6oCCFBiU2VyaWFsYgZwcm90bzM="));
+            "ECADKAUiaQoNUGJBc3NldEJ1bmRsZRIMCgRuYW1lGAEgASgJEgwKBEFiSWQY",
+            "AiABKAUSEwoLU2VjdXJpdHlLZXkYBSABKAkSDwoHY29udGVudBgDIAMoCRIW",
+            "Cg5jb250ZW50SW5kaWNlcxgEIAMoBSJHCglQYkRsY05vZGUSEgoKYnVuZGxl",
+            "TmFtZRgBIAEoCRILCgNtZDUYAiABKAkSDAoEc2l6ZRgDIAEoDRILCgNsb2QY",
+            "BCABKAUi9wgKCFBiUmVzTWFwEg8KB3ZlcnNpb24YASABKAkSGwoTYnVuZGxl",
+            "X3ZlcnNpb25fbmFtZRgDIAEoCRIbChNidW5kbGVfdmVyc2lvbl9jb2RlGAQg",
+            "ASgFEhoKEmdjbG91ZF9yZXNfdmVyc2lvbhgFIAEoBRIdChViYXR0bGVfbWF0",
+            "Y2hfdmVyc2lvbjAYBiABKAQSHQoVYmF0dGxlX21hdGNoX3ZlcnNpb24xGAcg",
+            "ASgEEh8KF2JhdHRsZV9jb21wbGV0ZV92ZXJzaW9uGAggASgFEiMKG2JhdHRs",
+            "ZV9tYXRjaF9zaWduYXR1cmVfY29kZRgJIAEoCRIiChpiYXR0bGVfbWF0Y2hf",
+            "c2lnbmF0dXJlX3JlcxgKIAEoCRIkChxiYXR0bGVfbWF0Y2hfc2lnbmF0dXJl",
+            "X3RhYmxlGAsgASgFEkIKEEhhc2hUb0Fzc2V0TmFtZXMYDCADKAsyKC5QYlNl",
+            "cmlhbC5QYlJlc01hcC5IYXNoVG9Bc3NldE5hbWVzRW50cnkSKAoLcmVzTm9k",
+            "ZUxpc3QYDSADKAsyEy5QYlNlcmlhbC5QYlJlc05vZGUSLQoMYXNzZXRidW5k",
+            "bGVzGA4gAygLMhcuUGJTZXJpYWwuUGJBc3NldEJ1bmRsZRIlCghEbGNOb2Rl",
+            "cxgPIAMoCzITLlBiU2VyaWFsLlBiRGxjTm9kZRI2CgpFeHRTdHJQb29sGBEg",
+            "AygLMiIuUGJTZXJpYWwuUGJSZXNNYXAuRXh0U3RyUG9vbEVudHJ5EkQKEUV4",
+            "dHJhY1BhdGhTdHJQb29sGBIgAygLMikuUGJTZXJpYWwuUGJSZXNNYXAuRXh0",
+            "cmFjUGF0aFN0clBvb2xFbnRyeRI4CgtUeXBlU3RyUG9vbBgTIAMoCzIjLlBi",
+            "U2VyaWFsLlBiUmVzTWFwLlR5cGVTdHJQb29sRW50cnkSPgoOUmVzUGF0aFN0",
+            "clBvb2wYFCADKAsyJi5QYlNlcmlhbC5QYlJlc01hcC5SZXNQYXRoU3RyUG9v",
+            "bEVudHJ5EjYKCkhhc2hUb01kNXMYFSADKAsyIi5QYlNlcmlhbC5QYlJlc01h",
+            "cC5IYXNoVG9NZDVzRW50cnkaNwoVSGFzaFRvQXNzZXROYW1lc0VudHJ5EgsK",
+            "A2tleRgBIAEoDRINCgV2YWx1ZRgCIAEoCToCOAEaMQoPRXh0U3RyUG9vbEVu",
+            "dHJ5EgsKA2tleRgBIAEoBRINCgV2YWx1ZRgCIAEoCToCOAEaOAoWRXh0cmFj",
+            "UGF0aFN0clBvb2xFbnRyeRILCgNrZXkYASABKAUSDQoFdmFsdWUYAiABKAk6",
+            "AjgBGjIKEFR5cGVTdHJQb29sRW50cnkSCwoDa2V5GAEgASgFEg0KBXZhbHVl",
+            "GAIgASgJOgI4ARo1ChNSZXNQYXRoU3RyUG9vbEVudHJ5EgsKA2tleRgBIAEo",
+            "BRINCgV2YWx1ZRgCIAEoCToCOAEaMQoPSGFzaFRvTWQ1c0VudHJ5EgsKA2tl",
+            "eRgBIAEoDRINCgV2YWx1ZRgCIAEoCToCOAFCC6oCCFBiU2VyaWFsYgZwcm90",
+            "bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::PbSerial.PbResNode), global::PbSerial.PbResNode.Parser, new[]{ "Id", "AssetNameHash", "Lod", "AssetExtId", "AssetFunType", "AssetLocType", "ResPathId", "ResPathAbId", "ResTypeId", "KeepInMem", "Extract", "ExtractionPathId", "IsInOtherDLC", "DependIds" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::PbSerial.PbAssetBundle), global::PbSerial.PbAssetBundle.Parser, new[]{ "Name", "AbId", "Content", "ContentIndices" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::PbSerial.PbAssetBundle), global::PbSerial.PbAssetBundle.Parser, new[]{ "Name", "AbId", "SecurityKey", "Content", "ContentIndices" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::PbSerial.PbDlcNode), global::PbSerial.PbDlcNode.Parser, new[]{ "BundleName", "Md5", "Size", "Lod" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::PbSerial.PbResMap), global::PbSerial.PbResMap.Parser, new[]{ "Version", "BundleVersionName", "BundleVersionCode", "GcloudResVersion", "BattleMatchVersion0", "BattleMatchVersion1", "BattleCompleteVersion", "BattleMatchSignatureCode", "BattleMatchSignatureRes", "BattleMatchSignatureTable", "HashToAssetNames", "ResNodeList", "Assetbundles", "DlcNodes", "ExtStrPool", "ExtracPathStrPool", "TypeStrPool", "ResPathStrPool", "HashToMd5S" }, null, null, new pbr::GeneratedClrTypeInfo[] { null, null, null, null, null, null, })
           }));
@@ -587,6 +588,7 @@ namespace PbSerial {
     public PbAssetBundle(PbAssetBundle other) : this() {
       name_ = other.name_;
       abId_ = other.abId_;
+      securityKey_ = other.securityKey_;
       content_ = other.content_.Clone();
       contentIndices_ = other.contentIndices_.Clone();
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
@@ -616,6 +618,17 @@ namespace PbSerial {
       get { return abId_; }
       set {
         abId_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "SecurityKey" field.</summary>
+    public const int SecurityKeyFieldNumber = 5;
+    private string securityKey_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public string SecurityKey {
+      get { return securityKey_; }
+      set {
+        securityKey_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
       }
     }
 
@@ -654,6 +667,7 @@ namespace PbSerial {
       }
       if (Name != other.Name) return false;
       if (AbId != other.AbId) return false;
+      if (SecurityKey != other.SecurityKey) return false;
       if(!content_.Equals(other.content_)) return false;
       if(!contentIndices_.Equals(other.contentIndices_)) return false;
       return Equals(_unknownFields, other._unknownFields);
@@ -664,6 +678,7 @@ namespace PbSerial {
       int hash = 1;
       if (Name.Length != 0) hash ^= Name.GetHashCode();
       if (AbId != 0) hash ^= AbId.GetHashCode();
+      if (SecurityKey.Length != 0) hash ^= SecurityKey.GetHashCode();
       hash ^= content_.GetHashCode();
       hash ^= contentIndices_.GetHashCode();
       if (_unknownFields != null) {
@@ -689,6 +704,10 @@ namespace PbSerial {
       }
       content_.WriteTo(output, _repeated_content_codec);
       contentIndices_.WriteTo(output, _repeated_contentIndices_codec);
+      if (SecurityKey.Length != 0) {
+        output.WriteRawTag(42);
+        output.WriteString(SecurityKey);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -702,6 +721,9 @@ namespace PbSerial {
       }
       if (AbId != 0) {
         size += 1 + pb::CodedOutputStream.ComputeInt32Size(AbId);
+      }
+      if (SecurityKey.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(SecurityKey);
       }
       size += content_.CalculateSize(_repeated_content_codec);
       size += contentIndices_.CalculateSize(_repeated_contentIndices_codec);
@@ -721,6 +743,9 @@ namespace PbSerial {
       }
       if (other.AbId != 0) {
         AbId = other.AbId;
+      }
+      if (other.SecurityKey.Length != 0) {
+        SecurityKey = other.SecurityKey;
       }
       content_.Add(other.content_);
       contentIndices_.Add(other.contentIndices_);
@@ -750,6 +775,10 @@ namespace PbSerial {
           case 34:
           case 32: {
             contentIndices_.AddEntriesFrom(input, _repeated_contentIndices_codec);
+            break;
+          }
+          case 42: {
+            SecurityKey = input.ReadString();
             break;
           }
         }

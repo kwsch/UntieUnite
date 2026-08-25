@@ -24,6 +24,7 @@ message PbResNode {
 message PbAssetBundle {
     string name = 1;
     int32 AbId = 2;
+    string SecurityKey = 5;
     repeated string content = 3;
     repeated int32 contentIndices = 4;
 }

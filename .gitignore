@@ -249,3 +249,5 @@ pip-log.txt
 #################
 
 *.userprefs
+run.bat
+.gitignore

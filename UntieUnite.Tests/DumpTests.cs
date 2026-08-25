@@ -21,7 +21,7 @@ namespace UntieUnite.Tests
             rmpb.Length.Should().Be(1);
 
             var fn = rmpb[0];
-            var decoder = new ResDecoder(EncryptKey._0xC093D547);
+            var decoder = new ResDecoder(EncryptKey._0xC093D547, AssetFormat.Android);
             var encrypted = File.ReadAllBytes(fn);
             var result = decoder.TryDecryptBytes(encrypted, out var decrypted);
             result.Should().BeTrue();
@@ -32,7 +32,7 @@ namespace UntieUnite.Tests
             var outDir = Path.Combine(outRoot, "rawProto");
             Directory.CreateDirectory(outDir);
 
-            var decompressed = FileUtil.DecompressZlib(decrypted);
+            var decompressed = FileUtil.DecompressZlib(decrypted!);
             var path = Path.Combine(outDir, "PbResMap.pb");
             File.WriteAllBytes(path, decompressed);
         }
